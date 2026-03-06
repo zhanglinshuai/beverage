@@ -3,7 +3,9 @@ package com.cqz.beverage.service;
 import com.cqz.beverage.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.dto.LoginResponseDTO;
+import com.cqz.beverage.model.dto.MotifyPasswordDTO;
 import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -49,6 +51,10 @@ public interface UserService extends IService<User> {
      */
     RegisterResponseDTO motifyUserInfo(MotifyUserRequest motifyUserRequest,String token);
 
-
-
+    /**
+     * 修改用户密码
+     * @param motifyPasswordRequest
+     * @return
+     */
+    MotifyPasswordDTO motifyPassword(MotifyPasswordRequest motifyPasswordRequest);
 }

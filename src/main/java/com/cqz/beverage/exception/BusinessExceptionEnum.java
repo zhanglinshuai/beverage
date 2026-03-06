@@ -20,7 +20,9 @@ public enum BusinessExceptionEnum {
     USER_PASSWORD_EMPTY(20004,"密码不能为空"),
     USER_ACCOUNT_DISABLED(20005,"用户账号被禁用"),
     USER_NOT_LOGIN(20006,"用户未登录"),
-    USER_LOGIN_INVALID(20007,"用户登录已过期")
+    USER_LOGIN_INVALID(20007,"用户登录已过期"),
+    USER_PASSWORD_SAME(20008,"密码修改前后相同"),
+    MOTIFY_PASSWORD_ERROR(20009,"修改密码失败")
     ;
 
     private int code;

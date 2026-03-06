@@ -10,7 +10,9 @@ import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.mapper.UserMapper;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.dto.LoginResponseDTO;
+import com.cqz.beverage.model.dto.MotifyPasswordDTO;
 import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
 import com.cqz.beverage.service.UserService;
 import com.cqz.beverage.utils.JwtTokenUtil;
@@ -153,6 +155,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         userMapper.updateById(currentUser);
         return RegisterResponseDTO.fromEntity(currentUser);
+    }
+
+    @Override
+    public MotifyPasswordDTO motifyPassword(MotifyPasswordRequest motifyPasswordRequest) {
+        if(motifyPasswordRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        Long userId = motifyPasswordRequest.getUserId();
+        String password = motifyPasswordRequest.getPassword();
+        String motifiedPassword = motifyPasswordRequest.getMotifiedPassword();
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("id",userId);
+        User user = userMapper.selectOne(userQueryWrapper);
+        if(user==null){
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        String oldPassword = user.getPassword();
+        //校验原密码输入是否正确
+        if(!BCrypt.checkpw(password,oldPassword)){
+            throw new BusinessException(BusinessExceptionEnum.USER_PASSWORD_ERROR);
+        }
+        //校验密码修改前后是否相同
+        if(password.equals(motifiedPassword)){
+            throw new  BusinessException(BusinessExceptionEnum.USER_PASSWORD_SAME);
+        }
+        //修改后的加密密码
+        String motifiedSafetiedPassword = BCrypt.hashpw(motifiedPassword);
+        user.setPassword(motifiedSafetiedPassword);
+        userMapper.updateById(user);
+        return MotifyPasswordDTO.fromEntity(password, motifiedPassword);
     }
 
 

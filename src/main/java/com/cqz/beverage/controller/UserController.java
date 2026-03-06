@@ -5,7 +5,9 @@ import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.exception.Result;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.dto.LoginResponseDTO;
+import com.cqz.beverage.model.dto.MotifyPasswordDTO;
 import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
 import com.cqz.beverage.model.vo.UserLoginRequest;
 import com.cqz.beverage.model.vo.UserRegisterRequest;
@@ -75,4 +77,15 @@ public class UserController {
         return Result.success(registerResponseDTO);
     }
 
+    @PutMapping("motifyPassword")
+    public Result<MotifyPasswordDTO> motifyPassword(@RequestBody MotifyPasswordRequest motifyPasswordRequest) {
+        if(motifyPasswordRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        MotifyPasswordDTO motifyPasswordDTO = userService.motifyPassword(motifyPasswordRequest);
+        if(motifyPasswordDTO == null) {
+            throw new BusinessException(BusinessExceptionEnum.MOTIFY_PASSWORD_ERROR);
+        }
+        return Result.success(motifyPasswordDTO);
+    }
 }
