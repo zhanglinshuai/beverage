@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqz.beverage.mapper.UserRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.cqz.beverage.model.UserRole">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="roleId" column="role_id" />
+            <result property="roleCode" column="role_code" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,role_id,role_code,create_time
+    </sql>
+</mapper>

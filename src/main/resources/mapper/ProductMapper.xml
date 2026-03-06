@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqz.beverage.mapper.ProductMapper">
+
+    <resultMap id="BaseResultMap" type="com.cqz.beverage.model.Product">
+            <id property="id" column="id" />
+            <result property="productName" column="product_name" />
+            <result property="brand" column="brand" />
+            <result property="price" column="price" />
+            <result property="image" column="image" />
+            <result property="description" column="description" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,product_name,brand,price,image,description,
+        create_time
+    </sql>
+</mapper>

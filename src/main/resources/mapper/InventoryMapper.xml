@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqz.beverage.mapper.InventoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.cqz.beverage.model.Inventory">
+            <id property="id" column="id" />
+            <result property="deviceId" column="device_id" />
+            <result property="productId" column="product_id" />
+            <result property="stock" column="stock" />
+            <result property="warningStock" column="warning_stock" />
+            <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,device_id,product_id,stock,warning_stock,update_time
+    </sql>
+</mapper>
