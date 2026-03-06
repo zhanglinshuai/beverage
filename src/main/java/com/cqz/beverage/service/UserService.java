@@ -2,6 +2,8 @@ package com.cqz.beverage.service;
 
 import com.cqz.beverage.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cqz.beverage.model.dto.LoginResponseDTO;
+import com.cqz.beverage.model.dto.RegisterResponseDTO;
 
 /**
 * @author zhanglinshuai
@@ -9,5 +11,24 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2026-03-06 14:16:00
 */
 public interface UserService extends IService<User> {
+
+    /**
+     * 用户注册
+     * @param username
+     * @param password
+     * @param checkPassword
+     * @param phone
+     * @param email
+     * @return
+     */
+    RegisterResponseDTO userRegister(String username, String password, String checkPassword, String phone, String email);
+
+    /**
+     * 用户登录
+     * @param username
+     * @param password
+     * @return
+     */
+    LoginResponseDTO userLogin(String username, String password);
 
 }
