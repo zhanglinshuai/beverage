@@ -1,6 +1,5 @@
 package com.cqz.beverage.utils;
 
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTPayload;
 import cn.hutool.jwt.JWTUtil;
@@ -9,7 +8,6 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import static com.cqz.beverage.constant.JwtConstant.*;
 
@@ -57,9 +55,10 @@ public class JwtTokenUtil {
      * @param token
      * @return
      */
-    public Long getUserIdFromToken(String token){
+    public Object getUserIdFromToken(String token){
         JWT jwt = JWTUtil.parseToken(token).setKey(SECRET.getBytes());
-        return (Long)jwt.getPayload("userId");
+        Object userId = jwt.getPayload("userId");
+        return userId;
     }
 
     /**

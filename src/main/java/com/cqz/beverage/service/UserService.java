@@ -4,6 +4,8 @@ import com.cqz.beverage.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.dto.LoginResponseDTO;
 import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.vo.MotifyUserRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
 * @author zhanglinshuai
@@ -30,5 +32,23 @@ public interface UserService extends IService<User> {
      * @return
      */
     LoginResponseDTO userLogin(String username, String password);
+
+
+    /**
+     * 获取当前登录用户信息
+     * @param token
+     * @return
+     */
+    User getCurrentUser(String token);
+
+
+    /**
+     * 修改用户信息
+     * @param motifyUserRequest
+     * @return
+     */
+    RegisterResponseDTO motifyUserInfo(MotifyUserRequest motifyUserRequest,String token);
+
+
 
 }

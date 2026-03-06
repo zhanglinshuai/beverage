@@ -1,23 +1,22 @@
 package com.cqz.beverage.service.impl;
 
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
-import cn.hutool.crypto.digest.MD5;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqz.beverage.constant.JwtConstant;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
+import com.cqz.beverage.mapper.UserMapper;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.dto.LoginResponseDTO;
 import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.vo.MotifyUserRequest;
 import com.cqz.beverage.service.UserService;
-import com.cqz.beverage.mapper.UserMapper;
 import com.cqz.beverage.utils.JwtTokenUtil;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
 * @author zhanglinshuai
@@ -108,6 +107,55 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         loginResponseDTO.setUserInfo(user);
         return loginResponseDTO;
     }
+
+    @Override
+    public User getCurrentUser(String token) {
+        Object userId = jwtTokenUtil.getUserIdFromToken(token);
+        Long id = (Long) userId;
+        return userMapper.selectById(id);
+    }
+
+    @Override
+    public RegisterResponseDTO motifyUserInfo(MotifyUserRequest motifyUserRequest,String token) {
+
+        User currentUser = getCurrentUser(token);
+        if(currentUser==null){
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        if(motifyUserRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        String username = motifyUserRequest.getUsername();
+        String realName = motifyUserRequest.getRealName();
+        String email = motifyUserRequest.getEmail();
+        String avatar = motifyUserRequest.getAvatar();
+        String phone = motifyUserRequest.getPhone();
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("username",username);
+        User user = userMapper.selectOne(userQueryWrapper);
+        if(user!=null){
+            throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
+        }
+        if(!currentUser.getUsername().equals(username)){
+            currentUser.setUsername(username);
+        }
+        if(currentUser.getRealName().equals(realName)){
+            currentUser.setRealName(realName);
+        }
+        if(!currentUser.getEmail().equals(email)){
+            currentUser.setEmail(email);
+        }
+        if(!currentUser.getAvatar().equals(avatar)){
+            currentUser.setAvatar(avatar);
+        }
+        if(!currentUser.getPhone().equals(phone)){
+            currentUser.setPhone(phone);
+        }
+        userMapper.updateById(currentUser);
+        return RegisterResponseDTO.fromEntity(currentUser);
+    }
+
+
 }
 
 

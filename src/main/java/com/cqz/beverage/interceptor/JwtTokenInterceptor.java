@@ -29,7 +29,7 @@ public class JwtTokenInterceptor implements HandlerInterceptor {
         if(!jwtTokenUtil.validateToken(token)){
             throw new BusinessException(BusinessExceptionEnum.USER_LOGIN_INVALID);
         }
-        Long userId = jwtTokenUtil.getUserIdFromToken(token);
+        Object userId = jwtTokenUtil.getUserIdFromToken(token);
         request.setAttribute("userId", userId);
         return true;
     }
