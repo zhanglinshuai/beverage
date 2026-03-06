@@ -1,22 +1,20 @@
 package com.cqz.beverage.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.exception.Result;
 import com.cqz.beverage.model.User;
-import com.cqz.beverage.model.dto.LoginResponseDTO;
-import com.cqz.beverage.model.dto.MotifyPasswordDTO;
-import com.cqz.beverage.model.dto.RegisterResponseDTO;
-import com.cqz.beverage.model.vo.MotifyPasswordRequest;
-import com.cqz.beverage.model.vo.MotifyUserRequest;
-import com.cqz.beverage.model.vo.UserLoginRequest;
-import com.cqz.beverage.model.vo.UserRegisterRequest;
+import com.cqz.beverage.model.dto.*;
+import com.cqz.beverage.model.vo.*;
 import com.cqz.beverage.service.UserService;
 import com.cqz.beverage.utils.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 用户控制层
@@ -87,5 +85,30 @@ public class UserController {
             throw new BusinessException(BusinessExceptionEnum.MOTIFY_PASSWORD_ERROR);
         }
         return Result.success(motifyPasswordDTO);
+    }
+
+    @GetMapping("/admin/getUserInfo")
+    public Result<PageResponseDTO<AdminUserInfo>> AdminGetUserInfo(HttpServletRequest request, PageRequest pageRequest){
+        if (pageRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        if (request==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        int pageNum = pageRequest.getPageNum();
+        int pageSize = pageRequest.getPageSize();
+        List<AdminUserInfo> adminUserInfos = userService.AdminGetUserInfo(request, pageRequest);
+        Page<AdminUserInfo> adminUserInfoPage = new Page<>();
+        //配置总条数
+        adminUserInfoPage.setTotal((long) pageNum *pageSize);
+        //配置每页条数
+        adminUserInfoPage.setSize(pageSize);
+        //配置页码
+        adminUserInfoPage.setCurrent(pageNum);
+        //配置记录
+        adminUserInfoPage.setRecords(adminUserInfos);
+        //将Page<AdminUserInfo>封装为PageResponseDTO<AdminUserInfo>类型
+        PageResponseDTO<AdminUserInfo> result = PageResponseDTO.buildPageResponseDTO(adminUserInfoPage);
+        return Result.success(result);
     }
 }

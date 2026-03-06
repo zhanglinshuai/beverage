@@ -2,23 +2,33 @@ package com.cqz.beverage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqz.beverage.constant.JwtConstant;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.mapper.UserMapper;
+import com.cqz.beverage.mapper.UserRoleMapper;
 import com.cqz.beverage.model.User;
-import com.cqz.beverage.model.dto.LoginResponseDTO;
-import com.cqz.beverage.model.dto.MotifyPasswordDTO;
-import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.UserRole;
+import com.cqz.beverage.model.dto.*;
 import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
+import com.cqz.beverage.model.vo.PageRequest;
 import com.cqz.beverage.service.UserService;
 import com.cqz.beverage.utils.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 * @author zhanglinshuai
@@ -33,7 +43,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private UserMapper userMapper;
     @Resource
     private JwtTokenUtil jwtTokenUtil;
-
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     @Override
     public RegisterResponseDTO userRegister(String username, String password, String checkPassword, String phone, String email) {
@@ -185,6 +196,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setPassword(motifiedSafetiedPassword);
         userMapper.updateById(user);
         return MotifyPasswordDTO.fromEntity(password, motifiedPassword);
+    }
+
+    @Override
+    public List<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest pageRequest) {
+        String header = request.getHeader(jwtTokenUtil.getHeader());
+        String token = jwtTokenUtil.getTokenFromHeader(header);
+        //判断是否为管理员
+        if(!isAdmin(token)){
+            return null;
+        }
+        //如果是管理员，查询所有的用户信息
+        //构建分页对象
+        Page<User> page = new Page<>(pageRequest.getPageNum(), pageRequest.getPageSize());
+        //执行分页查询
+        Page<User>userPage = userMapper.selectPage(page, null);
+        //转化为AdminUserInfo
+        List<AdminUserInfo> adminUserInfoList = page.getRecords().stream().map(AdminUserInfo::fromEntity).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(adminUserInfoList)) {
+            return null;
+        }
+        return adminUserInfoList;
+    }
+
+    /**
+     * 判断当前登录用户是否为管理员
+     * @param token
+     * @return
+     */
+    private boolean isAdmin(String token) {
+        User currentUser = getCurrentUser(token);
+        Long id = currentUser.getId();
+        QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
+        userRoleQueryWrapper.eq("user_id",id);
+        UserRole userRole = userRoleMapper.selectOne(userRoleQueryWrapper);
+        if (userRole==null || !userRole.getRoleCode().equals("ADMIN")) {
+            throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
+        }
+        return true;
     }
 
 

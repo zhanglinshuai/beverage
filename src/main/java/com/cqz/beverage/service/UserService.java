@@ -2,12 +2,13 @@ package com.cqz.beverage.service;
 
 import com.cqz.beverage.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.cqz.beverage.model.dto.LoginResponseDTO;
-import com.cqz.beverage.model.dto.MotifyPasswordDTO;
-import com.cqz.beverage.model.dto.RegisterResponseDTO;
+import com.cqz.beverage.model.dto.*;
 import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
+import com.cqz.beverage.model.vo.PageRequest;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
 * @author zhanglinshuai
@@ -57,4 +58,12 @@ public interface UserService extends IService<User> {
      * @return
      */
     MotifyPasswordDTO motifyPassword(MotifyPasswordRequest motifyPasswordRequest);
+
+    /**
+     * 管理员查看所有用户信息(分页查询）
+     * @param request
+     * @param pageRequest
+     * @return
+     */
+    List<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest  pageRequest);
 }
