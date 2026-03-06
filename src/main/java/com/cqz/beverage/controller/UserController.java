@@ -111,4 +111,16 @@ public class UserController {
         PageResponseDTO<AdminUserInfo> result = PageResponseDTO.buildPageResponseDTO(adminUserInfoPage);
         return Result.success(result);
     }
+
+    @PutMapping("/admin/motifyUserInfo")
+    public Result<AdminUserInfo> AdminMotifyUserInfo(@RequestBody AdminMotifyRequest adminMotifyRequest,HttpServletRequest request,String userName) {
+        if (adminMotifyRequest==null || request==null ||  userName==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        AdminUserInfo adminUserInfo = userService.AdminMotifyUserInfo(request, adminMotifyRequest, userName);
+        if(adminUserInfo == null) {
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        return Result.success(adminUserInfo);
+    }
 }

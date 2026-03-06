@@ -3,6 +3,7 @@ package com.cqz.beverage.service;
 import com.cqz.beverage.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.dto.*;
+import com.cqz.beverage.model.vo.AdminMotifyRequest;
 import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
 import com.cqz.beverage.model.vo.PageRequest;
@@ -66,4 +67,13 @@ public interface UserService extends IService<User> {
      * @return
      */
     List<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest  pageRequest);
+
+    /**
+     * 管理员修改用户信息
+     * @param request
+     * @param userName 要修改的用户名称
+     * @param adminMotifyRequest 修改后的用户信息
+     * @return
+     */
+    AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest  adminMotifyRequest,String userName);
 }

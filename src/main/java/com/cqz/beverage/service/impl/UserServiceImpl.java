@@ -15,6 +15,7 @@ import com.cqz.beverage.mapper.UserRoleMapper;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.UserRole;
 import com.cqz.beverage.model.dto.*;
+import com.cqz.beverage.model.vo.AdminMotifyRequest;
 import com.cqz.beverage.model.vo.MotifyPasswordRequest;
 import com.cqz.beverage.model.vo.MotifyUserRequest;
 import com.cqz.beverage.model.vo.PageRequest;
@@ -217,6 +218,51 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return null;
         }
         return adminUserInfoList;
+    }
+
+    @Override
+    public AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest adminMotifyRequest,String userName) {
+        String header = request.getHeader(jwtTokenUtil.getHeader());
+        String token = jwtTokenUtil.getTokenFromHeader(header);
+        //判断是否为管理员
+        if(!isAdmin(token)){
+            return null;
+        }
+        if(adminMotifyRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("username", userName);
+        User user = userMapper.selectOne(queryWrapper);
+        if(user==null){
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        String username = adminMotifyRequest.getUsername();
+        String realName = adminMotifyRequest.getRealName();
+        String email = adminMotifyRequest.getEmail();
+        String avatar = adminMotifyRequest.getAvatar();
+        String phone = adminMotifyRequest.getPhone();
+        int status = adminMotifyRequest.getStatus();
+        if(!user.getUsername().equals(username)){
+            user.setUsername(username);
+        }
+        if(user.getRealName().equals(realName)){
+            user.setRealName(realName);
+        }
+        if(!user.getEmail().equals(email)){
+            user.setEmail(email);
+        }
+        if(!user.getAvatar().equals(avatar)){
+            user.setAvatar(avatar);
+        }
+        if(!user.getPhone().equals(phone)){
+            user.setPhone(phone);
+        }
+        if(!user.getStatus().equals(status)){
+            user.setStatus(status);
+        }
+        userMapper.updateById(user);
+        //转换为AdminUserInfo
+        return AdminUserInfo.fromEntity(user);
     }
 
     /**
