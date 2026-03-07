@@ -2,9 +2,7 @@ package com.cqz.beverage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqz.beverage.constant.JwtConstant;
@@ -14,20 +12,21 @@ import com.cqz.beverage.mapper.UserMapper;
 import com.cqz.beverage.mapper.UserRoleMapper;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.UserRole;
-import com.cqz.beverage.model.dto.*;
-import com.cqz.beverage.model.vo.AdminMotifyRequest;
-import com.cqz.beverage.model.vo.MotifyPasswordRequest;
-import com.cqz.beverage.model.vo.MotifyUserRequest;
-import com.cqz.beverage.model.vo.PageRequest;
+import com.cqz.beverage.model.dto.user.AdminUserInfo;
+import com.cqz.beverage.model.dto.user.LoginResponseDTO;
+import com.cqz.beverage.model.dto.user.MotifyPasswordDTO;
+import com.cqz.beverage.model.dto.user.RegisterResponseDTO;
+import com.cqz.beverage.model.vo.user.AdminMotifyRequest;
+import com.cqz.beverage.model.vo.user.MotifyPasswordRequest;
+import com.cqz.beverage.model.vo.user.MotifyUserRequest;
+import com.cqz.beverage.model.vo.user.PageRequest;
 import com.cqz.beverage.service.UserService;
 import com.cqz.beverage.utils.JwtTokenUtil;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

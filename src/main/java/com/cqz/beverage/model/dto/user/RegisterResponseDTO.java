@@ -1,10 +1,9 @@
-package com.cqz.beverage.model.dto;
+package com.cqz.beverage.model.dto.user;
 
 import com.cqz.beverage.model.User;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**

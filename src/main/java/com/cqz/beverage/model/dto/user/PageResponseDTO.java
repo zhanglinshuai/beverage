@@ -1,4 +1,4 @@
-package com.cqz.beverage.model.dto;
+package com.cqz.beverage.model.dto.user;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.Data;

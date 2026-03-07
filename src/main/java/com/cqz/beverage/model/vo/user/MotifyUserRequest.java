@@ -1,4 +1,4 @@
-package com.cqz.beverage.model.vo;
+package com.cqz.beverage.model.vo.user;
 
 import lombok.Data;
 

@@ -5,8 +5,8 @@ import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.exception.Result;
 import com.cqz.beverage.model.User;
-import com.cqz.beverage.model.dto.*;
-import com.cqz.beverage.model.vo.*;
+import com.cqz.beverage.model.dto.user.*;
+import com.cqz.beverage.model.vo.user.*;
 import com.cqz.beverage.service.UserService;
 import com.cqz.beverage.utils.JwtTokenUtil;
 import jakarta.annotation.Resource;
@@ -65,7 +65,7 @@ public class UserController {
 
 
     @PutMapping("motifyUserInfo")
-    public Result<RegisterResponseDTO> motifyUserInfo(@RequestBody MotifyUserRequest  motifyUserRequest, HttpServletRequest request) {
+    public Result<RegisterResponseDTO> motifyUserInfo(@RequestBody MotifyUserRequest motifyUserRequest, HttpServletRequest request) {
         if (motifyUserRequest==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
@@ -113,7 +113,7 @@ public class UserController {
     }
 
     @PutMapping("/admin/motifyUserInfo")
-    public Result<AdminUserInfo> AdminMotifyUserInfo(@RequestBody AdminMotifyRequest adminMotifyRequest,HttpServletRequest request,String userName) {
+    public Result<AdminUserInfo> AdminMotifyUserInfo(@RequestBody AdminMotifyRequest adminMotifyRequest, HttpServletRequest request, String userName) {
         if (adminMotifyRequest==null || request==null ||  userName==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
