@@ -1,9 +1,7 @@
 package com.cqz.beverage.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
@@ -87,6 +85,10 @@ public class Device {
     @TableField(value = "update_time")
     private Date updateTime;
 
+    @TableField(value = "is_delete")
+    @TableLogic(value = "0",delval = "1")
+    private Integer isDelete;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -110,7 +112,8 @@ public class Device {
             && (this.getOperationId() == null ? other.getOperationId() == null : this.getOperationId().equals(other.getOperationId()))
             && (this.getInstallTime() == null ? other.getInstallTime() == null : this.getInstallTime().equals(other.getInstallTime()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
-            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()));
+            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
+            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))    ;
     }
 
     @Override
@@ -129,6 +132,7 @@ public class Device {
         result = prime * result + ((getInstallTime() == null) ? 0 : getInstallTime().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
+        result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
         return result;
     }
 
@@ -150,6 +154,7 @@ public class Device {
         sb.append(", installTime=").append(installTime);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
+        sb.append(", isDelete=").append(isDelete);
         sb.append("]");
         return sb.toString();
     }

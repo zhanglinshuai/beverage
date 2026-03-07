@@ -23,7 +23,10 @@ public enum BusinessExceptionEnum {
     USER_LOGIN_INVALID(20007,"用户登录已过期"),
     USER_PASSWORD_SAME(20008,"密码修改前后相同"),
     MOTIFY_PASSWORD_ERROR(20009,"修改密码失败"),
-    USER_ROLE_NO_PERMISSION(20010,"用户非管理员无权限")
+    USER_ROLE_NO_PERMISSION(20010,"用户非管理员无权限"),
+    //设备异常
+    DEVICE_ALREADY_EXISTS(30001,"设备已经存在"),
+    DEVICE_NOT_EXISTS(30002,"设备不存在")
     ;
 
     private int code;

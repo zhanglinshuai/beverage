@@ -16,10 +16,11 @@
             <result property="lastLoginTime" column="last_login_time" />
             <result property="createTime" column="create_time" />
             <result property="updateTime" column="update_time" />
+            <result property="isDelete" column="is_delete" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,username,password,real_name,phone,email,
-        avatar,status,last_login_time,create_time,update_time
+        avatar,status,last_login_time,create_time,update_time,is_delete
     </sql>
 </mapper>

@@ -1,4 +1,4 @@
-package com.cqz.beverage.model.vo;
+package com.cqz.beverage.model.vo.user;
 
 import lombok.Data;
 
@@ -17,4 +17,5 @@ public class AdminMotifyRequest implements Serializable {
     private String email;
     private String avatar;
     private int status;
+    private int isDelete;
 }

@@ -77,6 +77,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         newUser.setPhone(phone);
         newUser.setEmail(email);
         newUser.setStatus(0);
+        newUser.setIsDelete(0);
         if(save(newUser)){
             return RegisterResponseDTO.fromEntity(newUser);
         }else {
@@ -111,6 +112,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //账号被禁用
         if(user.getStatus()==1){
             throw new BusinessException(BusinessExceptionEnum.USER_ACCOUNT_DISABLED);
+        }
+        if(user.getIsDelete()==1){
+            throw new BusinessException(BusinessExceptionEnum.USER_ACCOUNT_DISABLED.getCode(),"该用户已被删除");
         }
         //如果用户存在生成token
         String token = jwtTokenUtil.generateToken(user.getId(), user.getUsername());
@@ -241,6 +245,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String avatar = adminMotifyRequest.getAvatar();
         String phone = adminMotifyRequest.getPhone();
         int status = adminMotifyRequest.getStatus();
+        int isDelete = adminMotifyRequest.getIsDelete();
         if(!user.getUsername().equals(username)){
             user.setUsername(username);
         }
@@ -258,6 +263,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         if(!user.getStatus().equals(status)){
             user.setStatus(status);
+        }
+        if(!user.getIsDelete().equals(isDelete)){
+            user.setIsDelete(isDelete);
         }
         userMapper.updateById(user);
         //转换为AdminUserInfo
