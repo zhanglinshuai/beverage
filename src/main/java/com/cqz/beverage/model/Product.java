@@ -1,18 +1,18 @@
 package com.cqz.beverage.model;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+
 import java.math.BigDecimal;
 import java.util.Date;
+
 import lombok.Data;
 
 /**
  * 商品表
+ *
  * @TableName product
  */
-@TableName(value ="product")
+@TableName(value = "product")
 @Data
 public class Product {
     /**
@@ -51,6 +51,11 @@ public class Product {
     @TableField(value = "description")
     private String description;
 
+    @TableField(value = "product_status")
+    private Integer productStatus;
+
+    @TableLogic(value = "0", delval = "1")
+    private Integer isDelete;
     /**
      * 创建时间
      */
@@ -70,12 +75,14 @@ public class Product {
         }
         Product other = (Product) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-            && (this.getProductName() == null ? other.getProductName() == null : this.getProductName().equals(other.getProductName()))
-            && (this.getBrand() == null ? other.getBrand() == null : this.getBrand().equals(other.getBrand()))
-            && (this.getPrice() == null ? other.getPrice() == null : this.getPrice().equals(other.getPrice()))
-            && (this.getImage() == null ? other.getImage() == null : this.getImage().equals(other.getImage()))
-            && (this.getDescription() == null ? other.getDescription() == null : this.getDescription().equals(other.getDescription()))
-            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
+                && (this.getProductName() == null ? other.getProductName() == null : this.getProductName().equals(other.getProductName()))
+                && (this.getBrand() == null ? other.getBrand() == null : this.getBrand().equals(other.getBrand()))
+                && (this.getPrice() == null ? other.getPrice() == null : this.getPrice().equals(other.getPrice()))
+                && (this.getImage() == null ? other.getImage() == null : this.getImage().equals(other.getImage()))
+                && (this.getDescription() == null ? other.getDescription() == null : this.getDescription().equals(other.getDescription()))
+                && (this.getProductStatus() == null ? other.getProductStatus() == null : this.getProductStatus().equals(other.getProductStatus()))
+                && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
+                && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()));
     }
 
     @Override
@@ -89,6 +96,8 @@ public class Product {
         result = prime * result + ((getImage() == null) ? 0 : getImage().hashCode());
         result = prime * result + ((getDescription() == null) ? 0 : getDescription().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
+        result = prime * result + ((getProductStatus() == null) ? 0 : getProductStatus().hashCode());
+        result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
         return result;
     }
 
@@ -105,6 +114,8 @@ public class Product {
         sb.append(", image=").append(image);
         sb.append(", description=").append(description);
         sb.append(", createTime=").append(createTime);
+        sb.append(", productStatus=").append(productStatus);
+        sb.append(", isDelete=").append(isDelete);
         sb.append("]");
         return sb.toString();
     }

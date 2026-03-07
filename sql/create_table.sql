@@ -5,22 +5,23 @@
 /*用户表的建表语句*/
 create table user
 (
-    id             bigint auto_increment comment '用户id'
+    id              bigint auto_increment comment '用户id'
         primary key,
-    username       varchar(255)                       null comment '用户名',
-    password       varchar(255)                       null comment '密码',
-    real_name      varchar(255)                       null comment '真实姓名',
-    phone          varchar(255)                       null comment '手机号',
-    email          varchar(255)                       null comment '邮箱',
-    avatar         varchar(255)                       null comment '头像',
-    status         tinyint                            null comment '账号状态 0-正常  1-禁用',
+    username        varchar(255)                       null comment '用户名',
+    password        varchar(255)                       null comment '密码',
+    real_name       varchar(255)                       null comment '真实姓名',
+    phone           varchar(255)                       null comment '手机号',
+    email           varchar(255)                       null comment '邮箱',
+    avatar          varchar(255)                       null comment '头像',
+    status          tinyint                            null comment '账号状态 0-正常  1-禁用',
     last_login_time datetime default CURRENT_TIMESTAMP not null comment '最后登录时间',
-    create_time    datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time    datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    create_time     datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    update_time     datetime default CURRENT_TIMESTAMP not null comment '更新时间',
+    is_delete       tinyint  default 0                 not null comment '是否删除 0-不删除  1-删除',
     constraint user_pk_2
         unique (username)
 )
-comment '所有角色共用一张表，通过角色区分身份';
+    comment '所有角色共用一张表，通过角色区分身份';
 
 /* 用户表的建表语句*/
 create table role
@@ -61,7 +62,8 @@ create table device
     operation_id bigint                                 null comment '运营商id',
     install_time datetime     default CURRENT_TIMESTAMP not null comment '安装时间',
     create_time  datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time  datetime     default CURRENT_TIMESTAMP not null comment '更新时间'
+    update_time  datetime     default CURRENT_TIMESTAMP not null comment '更新时间',
+    is_delete    tinyint      default 0                 not null comment '是否删除 0-不删除 1-删除'
 )
     comment '设备表';
 
@@ -81,14 +83,16 @@ create table inventory
 /*商品表的建表语句*/
 create table product
 (
-    id           bigint auto_increment comment '商品id'
+    id             bigint auto_increment comment '商品id'
         primary key,
-    product_name varchar(255)                       null comment '商品名称',
-    brand        varchar(255)                       null comment '品牌',
-    price        decimal(10, 2)                     null comment '价格',
-    image        varchar(255)                       null comment '商品图片',
-    description  varchar(255)                       null comment '商品描述',
-    create_time  datetime default CURRENT_TIMESTAMP not null comment '创建时间'
+    product_name   varchar(255)                       null comment '商品名称',
+    brand          varchar(255)                       null comment '品牌',
+    price          decimal(10, 2)                     null comment '价格',
+    image          varchar(255)                       null comment '商品图片',
+    description    varchar(255)                       null comment '商品描述',
+    product_status tinyint                            null comment '商品状态',
+    create_time    datetime default CURRENT_TIMESTAMP not null comment '创建时间',
+    is_delete      tinyint  default 0                 not null comment '是否删除 0-不删除 1-删除'
 )
     comment '商品表';
 
@@ -125,3 +129,22 @@ create table work_order
     finish_time   datetime                           null comment '完成时间'
 )
     comment '工单表';
+
+/*设备维修记录表*/
+create table device_archive
+(
+    id                    bigint auto_increment comment '主键id'
+        primary key,
+    device_code           varchar(255)                       null comment '设备编号',
+    maintenance_type      varchar(255)                       null comment '维护类型',
+    maintenance_content   varchar(255)                       null comment '维护内容',
+    maintenance_time      datetime                           null comment '维护时间',
+    operator              varchar(255)                       null comment '维护人员',
+    manufacturer          varchar(255)                       null comment '生产厂家',
+    production_date       datetime default CURRENT_TIMESTAMP not null comment '生产日期',
+    install_date          datetime default CURRENT_TIMESTAMP not null comment '安装日期',
+    warranty_period       varchar(255)                       null comment '保修期限',
+    last_maintenance_time datetime                           null comment '最后维修时间',
+    remark                varchar(255)                       null comment '备注'
+)
+    comment '设备档案记录表';

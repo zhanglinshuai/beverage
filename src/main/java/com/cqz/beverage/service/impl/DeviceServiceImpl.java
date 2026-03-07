@@ -312,7 +312,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
      * 判断是否为运营商或者管理员
      * @param currentUser
      */
-    private boolean isAdminAndOperator(User currentUser) {
+    public boolean isAdminAndOperator(User currentUser) {
         if(currentUser == null){
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_LOGIN);
         }

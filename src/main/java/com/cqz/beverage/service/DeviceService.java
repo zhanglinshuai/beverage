@@ -2,6 +2,7 @@ package com.cqz.beverage.service;
 
 import com.cqz.beverage.model.Device;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
 import com.cqz.beverage.model.dto.device.DeleteEquipmentDTO;
 import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
@@ -57,4 +58,11 @@ public interface DeviceService extends IService<Device> {
      * @return
      */
     Device getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest);
+
+    /**
+     * 校验用户是否为管理员或运营商
+     * @param currentUser
+     * @return
+     */
+    boolean isAdminAndOperator(User currentUser);
 }

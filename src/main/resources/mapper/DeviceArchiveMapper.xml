@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqz.beverage.mapper.DeviceArchiveMapper">
+
+    <resultMap id="BaseResultMap" type="com.cqz.beverage.model.DeviceArchive">
+            <id property="id" column="id" />
+            <result property="deviceCode" column="device_code" />
+            <result property="maintenanceType" column="maintenance_type" />
+            <result property="maintenanceContent" column="maintenance_content" />
+            <result property="maintenanceTime" column="maintenance_time" />
+            <result property="operator" column="operator" />
+            <result property="manufacturer" column="manufacturer" />
+            <result property="productionDate" column="production_date" />
+            <result property="installDate" column="install_date" />
+            <result property="warrantyPeriod" column="warranty_period" />
+            <result property="lastMaintenanceTime" column="last_maintenance_time" />
+            <result property="remark" column="remark" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,device_code,maintenance_type,maintenance_content,maintenance_time,operator,
+        manufacturer,production_date,install_date,warranty_period,last_maintenance_time,
+        remark
+    </sql>
+</mapper>
