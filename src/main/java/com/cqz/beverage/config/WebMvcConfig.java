@@ -2,8 +2,10 @@ package com.cqz.beverage.config;
 
 import com.cqz.beverage.interceptor.JwtTokenInterceptor;
 import com.cqz.beverage.utils.JwtTokenUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.ArrayList;
@@ -16,6 +18,9 @@ import java.util.List;
 public class WebMvcConfig implements WebMvcConfigurer {
 
     private final JwtTokenUtil jwtTokenUtil;
+    @Value("${file.upload-path:C:/uploads/}")
+    private String uploadPath;
+
 
     public WebMvcConfig(JwtTokenUtil jwtTokenUtil) {
         this.jwtTokenUtil = jwtTokenUtil;
@@ -33,6 +38,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     }
 
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        //将头像文件映射到本地磁盘路径
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:"+uploadPath);
+    }
+
     /**
      * 无需登录的接口列表
      * @return
@@ -41,6 +53,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         ArrayList<String> excludePaths = new ArrayList<>();
         excludePaths.add("/user/login");
         excludePaths.add("/user/register");
+        excludePaths.add("/uploads/**");
         return excludePaths;
     }
 }

@@ -1,5 +1,6 @@
 package com.cqz.beverage.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
@@ -50,29 +51,27 @@ public class UserController {
 
     }
 
-    @GetMapping("getUserInfo")
-    public Result<RegisterResponseDTO> getUserInfo(HttpServletRequest request) {
+    @GetMapping("/getUserInfo")
+    public Result<User> getUserInfo(HttpServletRequest request) {
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
         User currentUser = userService.getCurrentUser(token);
         if(currentUser == null) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
-        RegisterResponseDTO registerResponseDTO = RegisterResponseDTO.fromEntity(currentUser);
-
-        return Result.success(registerResponseDTO);
+        return Result.success(currentUser);
     }
 
 
-    @PutMapping("motifyUserInfo")
-    public Result<RegisterResponseDTO> motifyUserInfo(@RequestBody MotifyUserRequest motifyUserRequest, HttpServletRequest request) {
+    @PutMapping("/motifyUserInfo")
+    public Result<User> motifyUserInfo(@RequestBody MotifyUserRequest motifyUserRequest, HttpServletRequest request) {
         if (motifyUserRequest==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
-        RegisterResponseDTO registerResponseDTO = userService.motifyUserInfo(motifyUserRequest,token);
-        return Result.success(registerResponseDTO);
+        User user = userService.motifyUserInfo(motifyUserRequest,token);
+        return Result.success(user);
     }
 
     @PutMapping("motifyPassword")
@@ -95,20 +94,13 @@ public class UserController {
         if (request==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        int pageNum = pageRequest.getPageNum();
-        int pageSize = pageRequest.getPageSize();
-        List<AdminUserInfo> adminUserInfos = userService.AdminGetUserInfo(request, pageRequest);
-        Page<AdminUserInfo> adminUserInfoPage = new Page<>();
-        //配置总条数
-        adminUserInfoPage.setTotal((long) pageNum *pageSize);
-        //配置每页条数
-        adminUserInfoPage.setSize(pageSize);
-        //配置页码
-        adminUserInfoPage.setCurrent(pageNum);
-        //配置记录
-        adminUserInfoPage.setRecords(adminUserInfos);
-        //将Page<AdminUserInfo>封装为PageResponseDTO<AdminUserInfo>类型
-        PageResponseDTO<AdminUserInfo> result = PageResponseDTO.buildPageResponseDTO(adminUserInfoPage);
+        IPage<AdminUserInfo> resultPage = userService.AdminGetUserInfo(request, pageRequest);
+        PageResponseDTO<AdminUserInfo> result = new PageResponseDTO<>();
+        result.setRecords(resultPage.getRecords());
+        result.setTotal(resultPage.getTotal());
+        result.setPageNum((int) resultPage.getSize());
+        result.setPageNum((int) resultPage.getCurrent());
+
         return Result.success(result);
     }
 
@@ -122,5 +114,21 @@ public class UserController {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
         return Result.success(adminUserInfo);
+    }
+
+    @GetMapping("/admin/userDetail")
+    public Result<AdminUserInfo> getAdminUserDetail(HttpServletRequest request,Long userId) {
+        if (userId==null){
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"参数为空");
+        }
+        if(request==null){
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"参数为空");
+        }
+        AdminUserInfo result = userService.getUserDetail(request, userId);
+        if (result == null) {
+            return Result.fail(BusinessExceptionEnum.SYSTEM_ERROR.getCode(),"查询失败");
+        }
+
+        return Result.success(result);
     }
 }

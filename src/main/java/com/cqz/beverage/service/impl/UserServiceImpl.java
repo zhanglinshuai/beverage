@@ -2,7 +2,11 @@ package com.cqz.beverage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.BCrypt;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqz.beverage.constant.JwtConstant;
@@ -31,13 +35,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
-* @author zhanglinshuai
-* @description 针对表【user(所有角色共用一张表，通过角色区分身份)】的数据库操作Service实现
-* @createDate 2026-03-06 14:16:00
-*/
+ * @author zhanglinshuai
+ * @description 针对表【user(所有角色共用一张表，通过角色区分身份)】的数据库操作Service实现
+ * @createDate 2026-03-06 14:16:00
+ */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
-    implements UserService{
+        implements UserService {
 
     @Resource
     private UserMapper userMapper;
@@ -49,25 +53,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public RegisterResponseDTO userRegister(String username, String password, String checkPassword, String phone, String email) {
         //任意一个参数为空则会抛出该异常
-        if(StrUtil.hasEmpty(username, password, checkPassword, phone, email)){
+        if (StrUtil.hasEmpty(username, password, checkPassword, phone, email)) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        if(username.isEmpty() || username.length()>20){
-            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(),"用户名的长度不得为空或者不能超过20个字符");
+        if (username.isEmpty() || username.length() > 20) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(), "用户名的长度不得为空或者不能超过20个字符");
         }
-        if(password.length() < 6){
-            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(),"密码的长度不得小于6个字符");
+        if (password.length() < 6) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(), "密码的长度不得小于6个字符");
         }
         //密码和二次密码是否相同
-        if(!StrUtil.equals(password,checkPassword)){
-            throw new BusinessException(BusinessExceptionEnum.PARAM_ERROR.getCode(),"两次输入密码错误");
+        if (!StrUtil.equals(password, checkPassword)) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_ERROR.getCode(), "两次输入密码错误");
         }
         //校验用户名是否存在
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("username",username);
+        userQueryWrapper.eq("username", username);
         User user = userMapper.selectOne(userQueryWrapper);
-        if(user!=null){
-            throw new BusinessException(BusinessExceptionEnum.DATA_DUPLICATE.getCode(),username+"该用户名已存在");
+        if (user != null) {
+            throw new BusinessException(BusinessExceptionEnum.DATA_DUPLICATE.getCode(), username + "该用户名已存在");
         }
         //如果用户名不存在，对密码进行加密
         User newUser = new User();
@@ -78,43 +82,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         newUser.setEmail(email);
         newUser.setStatus(0);
         newUser.setIsDelete(0);
-        if(save(newUser)){
+        if (save(newUser)) {
             return RegisterResponseDTO.fromEntity(newUser);
-        }else {
+        } else {
             return null;
         }
     }
 
     @Override
     public LoginResponseDTO userLogin(String username, String password) {
-        if(StrUtil.hasEmpty(username, password)){
+        if (StrUtil.hasEmpty(username, password)) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        if(username.isEmpty() || username.length()>20){
-            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(),"用户名的长度不得为空或者不能超过20个字符");
+        if (username.isEmpty() || username.length() > 20) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(), "用户名的长度不得为空或者不能超过20个字符");
         }
-        if(password.length() < 6){
-            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(),"密码的长度不得小于6个字符");
+        if (password.length() < 6) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_FORMAT_ERROR.getCode(), "密码的长度不得小于6个字符");
         }
         //检验用户是否存在
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("username",username);
+        userQueryWrapper.eq("username", username);
         User user = userMapper.selectOne(userQueryWrapper);
         //用户不存在
-        if(user==null){
+        if (user == null) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
         //获取密码，将数据库中存储的密文密码和明文密码进行比较
         String encryptedPassword = user.getPassword();
-        if(!BCrypt.checkpw(password,encryptedPassword)){
+        if (!BCrypt.checkpw(password, encryptedPassword)) {
             throw new BusinessException(BusinessExceptionEnum.USER_PASSWORD_ERROR);
         }
         //账号被禁用
-        if(user.getStatus()==1){
+        if (user.getStatus() == 1) {
             throw new BusinessException(BusinessExceptionEnum.USER_ACCOUNT_DISABLED);
         }
-        if(user.getIsDelete()==1){
-            throw new BusinessException(BusinessExceptionEnum.USER_ACCOUNT_DISABLED.getCode(),"该用户已被删除");
+        if (user.getIsDelete() == 1) {
+            throw new BusinessException(BusinessExceptionEnum.USER_ACCOUNT_DISABLED.getCode(), "该用户已被删除");
         }
         //如果用户存在生成token
         String token = jwtTokenUtil.generateToken(user.getId(), user.getUsername());
@@ -128,18 +132,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User getCurrentUser(String token) {
         Object userId = jwtTokenUtil.getUserIdFromToken(token);
-        Long id = (Long) userId;
+        Long id = (userId instanceof Number) ? ((Number) userId).longValue() : null;
         return userMapper.selectById(id);
     }
 
     @Override
-    public RegisterResponseDTO motifyUserInfo(MotifyUserRequest motifyUserRequest,String token) {
+    public User motifyUserInfo(MotifyUserRequest motifyUserRequest, String token) {
 
         User currentUser = getCurrentUser(token);
-        if(currentUser==null){
+        if (currentUser == null) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
-        if(motifyUserRequest==null){
+        if (motifyUserRequest == null) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
         String username = motifyUserRequest.getUsername();
@@ -147,53 +151,46 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         String email = motifyUserRequest.getEmail();
         String avatar = motifyUserRequest.getAvatar();
         String phone = motifyUserRequest.getPhone();
-        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("username",username);
-        User user = userMapper.selectOne(userQueryWrapper);
-        if(user!=null){
-            throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
-        }
-        if(!currentUser.getUsername().equals(username)){
+        //如果当前登录用户名称和修改后的用户名不相同，判断修改后的用户名是否已存在
+        if (!currentUser.getUsername().equals(username)) {
+            QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+            userQueryWrapper.eq("username", username);
+            User user = userMapper.selectOne(userQueryWrapper);
+            if (user != null) {
+                throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
+            }
             currentUser.setUsername(username);
         }
-        if(currentUser.getRealName().equals(realName)){
-            currentUser.setRealName(realName);
-        }
-        if(!currentUser.getEmail().equals(email)){
-            currentUser.setEmail(email);
-        }
-        if(!currentUser.getAvatar().equals(avatar)){
-            currentUser.setAvatar(avatar);
-        }
-        if(!currentUser.getPhone().equals(phone)){
-            currentUser.setPhone(phone);
-        }
+        currentUser.setRealName(realName);
+        currentUser.setEmail(email);
+        currentUser.setAvatar(avatar);
+        currentUser.setPhone(phone);
         userMapper.updateById(currentUser);
-        return RegisterResponseDTO.fromEntity(currentUser);
+        return currentUser;
     }
 
     @Override
     public MotifyPasswordDTO motifyPassword(MotifyPasswordRequest motifyPasswordRequest) {
-        if(motifyPasswordRequest==null){
+        if (motifyPasswordRequest == null) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
         Long userId = motifyPasswordRequest.getUserId();
         String password = motifyPasswordRequest.getPassword();
         String motifiedPassword = motifyPasswordRequest.getMotifiedPassword();
         QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
-        userQueryWrapper.eq("id",userId);
+        userQueryWrapper.eq("id", userId);
         User user = userMapper.selectOne(userQueryWrapper);
-        if(user==null){
+        if (user == null) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
         String oldPassword = user.getPassword();
         //校验原密码输入是否正确
-        if(!BCrypt.checkpw(password,oldPassword)){
+        if (!BCrypt.checkpw(password, oldPassword)) {
             throw new BusinessException(BusinessExceptionEnum.USER_PASSWORD_ERROR);
         }
         //校验密码修改前后是否相同
-        if(password.equals(motifiedPassword)){
-            throw new  BusinessException(BusinessExceptionEnum.USER_PASSWORD_SAME);
+        if (password.equals(motifiedPassword)) {
+            throw new BusinessException(BusinessExceptionEnum.USER_PASSWORD_SAME);
         }
         //修改后的加密密码
         String motifiedSafetiedPassword = BCrypt.hashpw(motifiedPassword);
@@ -203,81 +200,194 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public List<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest pageRequest) {
+    public IPage<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest pageRequest) {
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
         //判断是否为管理员
-        if(!isAdmin(token)){
+        if (!isAdmin(token)) {
             return null;
         }
         //如果是管理员，查询所有的用户信息
         //构建分页对象
         Page<User> page = new Page<>(pageRequest.getPageNum(), pageRequest.getPageSize());
         //执行分页查询
-        Page<User>userPage = userMapper.selectPage(page, null);
+        userMapper.selectPage(page, null);
         //转化为AdminUserInfo
-        List<AdminUserInfo> adminUserInfoList = page.getRecords().stream().map(AdminUserInfo::fromEntity).collect(Collectors.toList());
-        if (CollectionUtils.isEmpty(adminUserInfoList)) {
-            return null;
+        Page<AdminUserInfo> resultPage = new Page<>();
+        resultPage.setTotal(page.getTotal());
+        resultPage.setSize(page.getSize());
+        resultPage.setCurrent(page.getCurrent());
+        List<AdminUserInfo> dtoList = page.getRecords().stream().map(AdminUserInfo::fromEntity).collect(Collectors.toList());
+        for(AdminUserInfo dto : dtoList) {
+            QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
+            userRoleQueryWrapper.eq("user_id", dto.getId());
+            UserRole userRole = userRoleMapper.selectOne(userRoleQueryWrapper);
+            if(userRole == null) {
+                continue;
+            }
+            dto.setRole(userRole.getRoleCode());
         }
-        return adminUserInfoList;
+        resultPage.setRecords(dtoList);
+        return resultPage;
     }
 
     @Override
-    // TODO 待完善
+    public AdminUserInfo getUserDetail(HttpServletRequest request, Long userId) {
+        if (request == null) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        if (userId == null) {
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        //校验是否为管理员
+        String header = request.getHeader(jwtTokenUtil.getHeader());
+        String token = jwtTokenUtil.getTokenFromHeader(header);
+        if(!isAdmin(token)){
+            throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
+        }
+        //查询用户信息
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper.eq("id", userId);
+        User user = userMapper.selectOne(userQueryWrapper);
+        if (user == null) {
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
+        userRoleQueryWrapper.eq("user_id", user.getId());
+        UserRole userRole = userRoleMapper.selectOne(userRoleQueryWrapper);
+        AdminUserInfo adminUserInfo = AdminUserInfo.fromEntity(user);
+        adminUserInfo.setRole(userRole.getRoleCode());
+        return adminUserInfo;
+    }
+
+    @Override
+    //
     public AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest adminMotifyRequest) {
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
         //判断是否为管理员
-        if(!isAdmin(token)){
+        if (!isAdmin(token)) {
             return null;
         }
-        if(adminMotifyRequest==null){
+        // 1. 参数校验
+        if (adminMotifyRequest == null || adminMotifyRequest.getUser() == null || adminMotifyRequest.getUser().getId() == null) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        String username = adminMotifyRequest.getUsername();
-        String realName = adminMotifyRequest.getRealName();
-        String email = adminMotifyRequest.getEmail();
-        String avatar = adminMotifyRequest.getAvatar();
-        String phone = adminMotifyRequest.getPhone();
-        User user = adminMotifyRequest.getUser();
-        int status = adminMotifyRequest.getStatus();
-        int isDelete = adminMotifyRequest.getIsDelete();
-        //校验修改后的名称是否已经存在
-        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("username", username);
-        User one = userMapper.selectOne(queryWrapper);
-        if(one!=null){
-            throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
+
+        Long userId = adminMotifyRequest.getUser().getId();
+
+        // 2. 获取数据库中现有的用户信息 (作为比对基准)
+        User existingUser = getById(userId);
+        if (existingUser == null) {
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
-        //更新修改前后不同的属性值
-        if(!user.getUsername().equals(username)){
-            user.setUsername(username);
+
+        // 3. 准备更新包装器
+        LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(User::getId, userId);
+        boolean hasUpdate = false; // 标记是否有字段需要更新
+
+        // --- 逐个字段比对 ---
+
+        // [用户名]
+        String newUsername = adminMotifyRequest.getUsername();
+        // 只有当新用户名不为空，且与旧用户名不同时，才更新
+        if (StringUtils.isNotBlank(newUsername) && !newUsername.equals(existingUser.getUsername())) {
+            // 检查用户名是否重复 (仅在用户名真正改变时检查)
+            User duplicate = userMapper.selectOne(new QueryWrapper<User>().eq("username", newUsername));
+            if (duplicate != null) {
+                throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
+            }
+            updateWrapper.set(User::getUsername, newUsername);
+            existingUser.setUsername(newUsername); // 更新本地对象以便后续返回
+            hasUpdate = true;
         }
-        if(user.getRealName().equals(realName)){
-            user.setRealName(realName);
+
+        // [真实姓名]
+        String newRealName = adminMotifyRequest.getRealName();
+        if (StringUtils.isNotBlank(newRealName) && !newRealName.equals(existingUser.getRealName())) {
+            updateWrapper.set(User::getRealName, newRealName);
+            existingUser.setRealName(newRealName);
+            hasUpdate = true;
         }
-        if(!user.getEmail().equals(email)){
-            user.setEmail(email);
+
+        // [手机号]
+        String newPhone = adminMotifyRequest.getPhone();
+        if (StringUtils.isNotBlank(newPhone) && !newPhone.equals(existingUser.getPhone())) {
+            updateWrapper.set(User::getPhone, newPhone);
+            existingUser.setPhone(newPhone);
+            hasUpdate = true;
         }
-        if(!user.getAvatar().equals(avatar)){
-            user.setAvatar(avatar);
+
+        // [邮箱]
+        String newEmail = adminMotifyRequest.getEmail();
+        if (StringUtils.isNotBlank(newEmail) && !newEmail.equals(existingUser.getEmail())) {
+            updateWrapper.set(User::getEmail, newEmail);
+            existingUser.setEmail(newEmail);
+            hasUpdate = true;
         }
-        if(!user.getPhone().equals(phone)){
-            user.setPhone(phone);
+
+        // [头像]
+        String newAvatar = adminMotifyRequest.getAvatar();
+        if (StringUtils.isNotBlank(newAvatar) && !newAvatar.equals(existingUser.getAvatar())) {
+            updateWrapper.set(User::getAvatar, newAvatar);
+            existingUser.setAvatar(newAvatar);
+            hasUpdate = true;
         }
-        if(!user.getStatus().equals(status)){
-            user.setStatus(status);
+
+        // [状态] (int 类型通常需要约定 0 是有效值还是默认值，这里假设前后端传值正确)
+        if (adminMotifyRequest.getStatus() != existingUser.getStatus()) {
+            updateWrapper.set(User::getStatus, adminMotifyRequest.getStatus());
+            existingUser.setStatus(adminMotifyRequest.getStatus());
+            hasUpdate = true;
         }
-        if(!user.getIsDelete().equals(isDelete)){
-            user.setIsDelete(isDelete);
+
+        // [是否删除]
+        if (adminMotifyRequest.getIsDelete() != existingUser.getIsDelete()) {
+            updateWrapper.set(User::getIsDelete, adminMotifyRequest.getIsDelete());
+            existingUser.setIsDelete(adminMotifyRequest.getIsDelete());
+            hasUpdate = true;
         }
-        userMapper.updateById(user);
-        //转换为AdminUserInfo
-        return AdminUserInfo.fromEntity(user);
+
+        // 4. 执行 User 表更新
+        if (hasUpdate) {
+            update(updateWrapper);
+        }
+        AdminUserInfo adminUserInfo = AdminUserInfo.fromEntity(existingUser);
+        // 5. 更新角色 (涉及关联表 UserRole)
+        String newRole = adminMotifyRequest.getRole();
+        if (StringUtils.isNotBlank(newRole)) {
+            // 查询现有角色
+            UserRole existingUserRole = userRoleMapper.selectOne(new QueryWrapper<UserRole>().eq("user_id", userId));
+
+            if (existingUserRole == null) {
+                // 如果原来没有角色，则新增
+                UserRole newUserRole = new UserRole();
+                newUserRole.setUserId(userId);
+                newUserRole.setRoleCode(newRole);
+                userRoleMapper.insert(newUserRole);
+            } else if (!newRole.equals(existingUserRole.getRoleCode())) {
+                // 如果原来有角色且不同，则更新
+                existingUserRole.setRoleCode(newRole);
+                userRoleMapper.updateById(existingUserRole);
+            }
+            // 更新本地对象用于返回
+            adminUserInfo.setRole(newRole);
+        } else {
+            // 如果没有修改角色，尝试获取现有角色以便返回
+            UserRole existingUserRole = userRoleMapper.selectOne(new QueryWrapper<UserRole>().eq("user_id", userId));
+            if (existingUserRole != null) {
+                adminUserInfo.setRole(existingUserRole.getRoleCode());
+            }
+        }
+
+        // 6. 返回最新的用户信息
+        return adminUserInfo;
     }
 
     /**
      * 判断当前登录用户是否为管理员
+     *
      * @param token
      * @return
      */
@@ -285,9 +395,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         User currentUser = getCurrentUser(token);
         Long id = currentUser.getId();
         QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
-        userRoleQueryWrapper.eq("user_id",id);
+        userRoleQueryWrapper.eq("user_id", id);
         UserRole userRole = userRoleMapper.selectOne(userRoleQueryWrapper);
-        if (userRole==null || !userRole.getRoleCode().equals("ADMIN")) {
+        if (userRole == null || !userRole.getRoleCode().equals("ADMIN")) {
             throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
         }
         return true;

@@ -20,6 +20,7 @@ public class AdminUserInfo implements Serializable {
     private String avatar;
     private Integer status;
     private String role;
+    private Integer isDelete;
 
 
     public static AdminUserInfo fromEntity(User user){
@@ -31,6 +32,7 @@ public class AdminUserInfo implements Serializable {
         userInfo.setEmail(user.getEmail());
         userInfo.setAvatar(user.getAvatar());
         userInfo.setStatus(user.getStatus());
+        userInfo.setIsDelete(user.getIsDelete());
         return userInfo;
     }
 }

@@ -21,4 +21,5 @@ public class AdminMotifyRequest implements Serializable {
     private String avatar;
     private int status;
     private int isDelete;
+    private String role;
 }

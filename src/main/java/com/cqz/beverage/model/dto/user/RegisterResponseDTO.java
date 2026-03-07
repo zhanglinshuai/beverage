@@ -32,6 +32,7 @@ public class RegisterResponseDTO implements Serializable {
         dto.setPhone(desensitizePhone(entity.getPhone()));
         dto.setEmail(entity.getEmail());// 脱敏处理
         dto.setStatus(entity.getStatus());
+        dto.setCreateTime(entity.getCreateTime());
         return dto;
     }
 }

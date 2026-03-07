@@ -1,5 +1,6 @@
 package com.cqz.beverage.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cqz.beverage.model.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.dto.user.AdminUserInfo;
@@ -54,7 +55,7 @@ public interface UserService extends IService<User> {
      * @param motifyUserRequest
      * @return
      */
-    RegisterResponseDTO motifyUserInfo(MotifyUserRequest motifyUserRequest,String token);
+    User motifyUserInfo(MotifyUserRequest motifyUserRequest,String token);
 
     /**
      * 修改用户密码
@@ -69,7 +70,15 @@ public interface UserService extends IService<User> {
      * @param pageRequest
      * @return
      */
-    List<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest  pageRequest);
+    IPage<AdminUserInfo> AdminGetUserInfo(HttpServletRequest request, PageRequest  pageRequest);
+
+    /**
+     * 管理员查看用户详情信息
+     * @param request
+     * @param userId
+     * @return
+     */
+    AdminUserInfo getUserDetail(HttpServletRequest request,Long userId);
 
     /**
      * 管理员修改用户信息
