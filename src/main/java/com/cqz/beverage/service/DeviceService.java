@@ -4,9 +4,15 @@ import com.cqz.beverage.model.Device;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
 import com.cqz.beverage.model.dto.device.DeleteEquipmentDTO;
+import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
 import com.cqz.beverage.model.vo.device.AddEquipmentRequest;
 import com.cqz.beverage.model.vo.device.DeleteEquipmentRequest;
+import com.cqz.beverage.model.vo.device.GetEquipmentInfoRequest;
+import com.cqz.beverage.model.vo.device.MotifyEquipmentRequest;
+import com.cqz.beverage.model.vo.user.PageRequest;
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.List;
 
 /**
 * @author zhanglinshuai
@@ -29,4 +35,26 @@ public interface DeviceService extends IService<Device> {
      * @return
      */
     DeleteEquipmentDTO deleteEquipment(DeleteEquipmentRequest  deleteEquipmentRequest);
+
+    /**
+     * 修改设备信息
+     * @param motifyEquipmentRequest
+     * @return
+     */
+    MotifyEquipmentDTO  motifyEquipment(MotifyEquipmentRequest motifyEquipmentRequest);
+
+    /**
+     * 分页查询
+     * @param request
+     * @param pageRequest
+     * @return
+     */
+    List<Device> getDeviceInfoList(HttpServletRequest request, PageRequest pageRequest);
+
+    /**
+     * 查看设备详情
+     * @param getEquipmentInfoRequest
+     * @return
+     */
+    Device getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest);
 }

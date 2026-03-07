@@ -1,5 +1,6 @@
 package com.cqz.beverage.model.vo.user;
 
+import com.cqz.beverage.model.User;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,6 +11,8 @@ import java.io.Serializable;
 @Data
 public class AdminMotifyRequest implements Serializable {
     private static final long serialVersionUID = 1L;
+    private User user;
+
     private String username;
     private String password;
     private String realName;

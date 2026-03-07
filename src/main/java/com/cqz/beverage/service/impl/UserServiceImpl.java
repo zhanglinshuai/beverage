@@ -224,7 +224,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
-    public AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest adminMotifyRequest,String userName) {
+    // TODO 待完善
+    public AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest adminMotifyRequest) {
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
         //判断是否为管理员
@@ -234,18 +235,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         if(adminMotifyRequest==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("username", userName);
-        User user = userMapper.selectOne(queryWrapper);
-        if(user==null){
-            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
-        }
         String username = adminMotifyRequest.getUsername();
         String realName = adminMotifyRequest.getRealName();
         String email = adminMotifyRequest.getEmail();
         String avatar = adminMotifyRequest.getAvatar();
         String phone = adminMotifyRequest.getPhone();
+        User user = adminMotifyRequest.getUser();
         int status = adminMotifyRequest.getStatus();
         int isDelete = adminMotifyRequest.getIsDelete();
+        //校验修改后的名称是否已经存在
+        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("username", username);
+        User one = userMapper.selectOne(queryWrapper);
+        if(one!=null){
+            throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
+        }
+        //更新修改前后不同的属性值
         if(!user.getUsername().equals(username)){
             user.setUsername(username);
         }

@@ -113,11 +113,11 @@ public class UserController {
     }
 
     @PutMapping("/admin/motifyUserInfo")
-    public Result<AdminUserInfo> AdminMotifyUserInfo(@RequestBody AdminMotifyRequest adminMotifyRequest, HttpServletRequest request, String userName) {
-        if (adminMotifyRequest==null || request==null ||  userName==null){
+    public Result<AdminUserInfo> AdminMotifyUserInfo(@RequestBody AdminMotifyRequest adminMotifyRequest, HttpServletRequest request) {
+        if (adminMotifyRequest==null || request==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        AdminUserInfo adminUserInfo = userService.AdminMotifyUserInfo(request, adminMotifyRequest, userName);
+        AdminUserInfo adminUserInfo = userService.AdminMotifyUserInfo(request, adminMotifyRequest);
         if(adminUserInfo == null) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }

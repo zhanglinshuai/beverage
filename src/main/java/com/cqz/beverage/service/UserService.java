@@ -74,9 +74,8 @@ public interface UserService extends IService<User> {
     /**
      * 管理员修改用户信息
      * @param request
-     * @param userName 要修改的用户名称
      * @param adminMotifyRequest 修改后的用户信息
      * @return
      */
-    AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest  adminMotifyRequest,String userName);
+    AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest  adminMotifyRequest);
 }
