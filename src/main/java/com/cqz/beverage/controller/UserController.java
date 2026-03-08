@@ -131,4 +131,22 @@ public class UserController {
 
         return Result.success(result);
     }
+
+    @GetMapping("/admin/search")
+    public Result<PageResponseDTO<AdminUserInfo>> AdminSearchUserInfo(SearchUserRequest searchUserRequest,HttpServletRequest request){
+        if (searchUserRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        if (request==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        IPage<AdminUserInfo> adminUserInfoIPage = userService.searchUser(searchUserRequest,request);
+        PageResponseDTO<AdminUserInfo> result = new PageResponseDTO<>();
+        result.setRecords(adminUserInfoIPage.getRecords());
+        result.setTotal(adminUserInfoIPage.getTotal());
+        result.setPageNum((int) adminUserInfoIPage.getSize());
+        result.setPageNum((int) adminUserInfoIPage.getCurrent());
+
+        return Result.success(result);
+    }
 }

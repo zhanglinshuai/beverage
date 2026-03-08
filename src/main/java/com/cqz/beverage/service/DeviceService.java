@@ -1,5 +1,6 @@
 package com.cqz.beverage.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cqz.beverage.model.Device;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.User;
@@ -50,7 +51,7 @@ public interface DeviceService extends IService<Device> {
      * @param pageRequest
      * @return
      */
-    List<Device> getDeviceInfoList(HttpServletRequest request, PageRequest pageRequest);
+    IPage<Device> getDeviceInfoList(HttpServletRequest request, PageRequest pageRequest);
 
     /**
      * 查看设备详情

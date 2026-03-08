@@ -1,10 +1,16 @@
 package com.cqz.beverage.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.exception.Result;
+import com.cqz.beverage.mapper.UserMapper;
+import com.cqz.beverage.mapper.UserRoleMapper;
 import com.cqz.beverage.model.Device;
+import com.cqz.beverage.model.User;
+import com.cqz.beverage.model.UserRole;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
 import com.cqz.beverage.model.dto.device.DeleteEquipmentDTO;
 import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
@@ -15,11 +21,15 @@ import com.cqz.beverage.model.vo.device.GetEquipmentInfoRequest;
 import com.cqz.beverage.model.vo.device.MotifyEquipmentRequest;
 import com.cqz.beverage.model.vo.user.PageRequest;
 import com.cqz.beverage.service.DeviceService;
+import com.cqz.beverage.service.UserRoleService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/device")
@@ -27,6 +37,36 @@ public class DeviceController {
 
     @Resource
     private DeviceService deviceService;
+
+    @Resource
+    private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserMapper userMapper;
+
+    /**
+     * 获取所有的运营商
+     * @return
+     */
+    @GetMapping("/get/allOperators")
+    public Map<Long,String> getAllOperators(){
+        QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
+        userRoleQueryWrapper.eq("role_code","OPERATOR");
+        List<UserRole> userRoles = userRoleMapper.selectList(userRoleQueryWrapper);
+        Map<Long,String> result = new HashMap<>();
+        for(UserRole userRole : userRoles){
+            Long userId = userRole.getUserId();
+            QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+            userQueryWrapper.eq("id",userId);
+            User user = userMapper.selectOne(userQueryWrapper);
+            if (user!=null){
+                result.put(userId,user.getUsername());
+            }
+
+        }
+        return result;
+    }
+
+
 
     @PostMapping("/addDevice")
     public Result<AddEquipmentDTO> addEquipment(@RequestBody AddEquipmentRequest addEquipmentRequest, HttpServletRequest servletRequest){
@@ -68,16 +108,15 @@ public class DeviceController {
         if (servletRequest==null ||  pageRequest==null){
             return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"参数为空");
         }
-        List<Device> deviceInfoList = deviceService.getDeviceInfoList(servletRequest, pageRequest);
-        Page<Device> devicePage = new Page<>();
+        IPage<Device> deviceInfoList = deviceService.getDeviceInfoList(servletRequest, pageRequest);
+        PageResponseDTO<Device> devicePage = new PageResponseDTO<>();
         //设置配置
-        devicePage.setRecords(deviceInfoList);
-        devicePage.setTotal((long) pageRequest.getPageNum() * pageRequest.getPageSize());
-        devicePage.setSize(pageRequest.getPageSize());
-        devicePage.setCurrent(pageRequest.getPageNum());
+        devicePage.setRecords(deviceInfoList.getRecords());
+        devicePage.setTotal(deviceInfoList.getTotal());
+        devicePage.setPageNum((int) deviceInfoList.getCurrent());
+        devicePage.setPageSize((int) deviceInfoList.getSize());
         //转换为分页的响应数据类型
-        PageResponseDTO<Device> devicePageResponseDTO = PageResponseDTO.buildPageResponseDTO(devicePage);
-        return Result.success(devicePageResponseDTO);
+        return Result.success(devicePage);
     }
     @GetMapping("/getDeviceInfo")
     public Result<Device> getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest){

@@ -20,10 +20,7 @@ import com.cqz.beverage.model.dto.user.AdminUserInfo;
 import com.cqz.beverage.model.dto.user.LoginResponseDTO;
 import com.cqz.beverage.model.dto.user.MotifyPasswordDTO;
 import com.cqz.beverage.model.dto.user.RegisterResponseDTO;
-import com.cqz.beverage.model.vo.user.AdminMotifyRequest;
-import com.cqz.beverage.model.vo.user.MotifyPasswordRequest;
-import com.cqz.beverage.model.vo.user.MotifyUserRequest;
-import com.cqz.beverage.model.vo.user.PageRequest;
+import com.cqz.beverage.model.vo.user.*;
 import com.cqz.beverage.service.UserService;
 import com.cqz.beverage.utils.JwtTokenUtil;
 import jakarta.annotation.Resource;
@@ -218,11 +215,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         resultPage.setSize(page.getSize());
         resultPage.setCurrent(page.getCurrent());
         List<AdminUserInfo> dtoList = page.getRecords().stream().map(AdminUserInfo::fromEntity).collect(Collectors.toList());
-        for(AdminUserInfo dto : dtoList) {
+        for (AdminUserInfo dto : dtoList) {
             QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
             userRoleQueryWrapper.eq("user_id", dto.getId());
             UserRole userRole = userRoleMapper.selectOne(userRoleQueryWrapper);
-            if(userRole == null) {
+            if (userRole == null) {
                 continue;
             }
             dto.setRole(userRole.getRoleCode());
@@ -242,7 +239,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         //校验是否为管理员
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
-        if(!isAdmin(token)){
+        if (!isAdmin(token)) {
             throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
         }
         //查询用户信息
@@ -282,77 +279,76 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
 
-        // 3. 准备更新包装器
-        LambdaUpdateWrapper<User> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.eq(User::getId, userId);
-        boolean hasUpdate = false; // 标记是否有字段需要更新
 
         // --- 逐个字段比对 ---
 
         // [用户名]
         String newUsername = adminMotifyRequest.getUsername();
         // 只有当新用户名不为空，且与旧用户名不同时，才更新
+        if(StringUtils.isBlank(newUsername)){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"用户名不能为空");
+        }
         if (StringUtils.isNotBlank(newUsername) && !newUsername.equals(existingUser.getUsername())) {
             // 检查用户名是否重复 (仅在用户名真正改变时检查)
             User duplicate = userMapper.selectOne(new QueryWrapper<User>().eq("username", newUsername));
             if (duplicate != null) {
                 throw new BusinessException(BusinessExceptionEnum.USER_NAME_DUPLICATE);
             }
-            updateWrapper.set(User::getUsername, newUsername);
+
             existingUser.setUsername(newUsername); // 更新本地对象以便后续返回
-            hasUpdate = true;
+
         }
 
         // [真实姓名]
         String newRealName = adminMotifyRequest.getRealName();
+        if(StringUtils.isBlank(newRealName)){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"真实姓名不能为空");
+        }
         if (StringUtils.isNotBlank(newRealName) && !newRealName.equals(existingUser.getRealName())) {
-            updateWrapper.set(User::getRealName, newRealName);
+
             existingUser.setRealName(newRealName);
-            hasUpdate = true;
+
         }
 
         // [手机号]
         String newPhone = adminMotifyRequest.getPhone();
+        if(StringUtils.isBlank(newPhone)){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"手机号不能为空");
+        }
         if (StringUtils.isNotBlank(newPhone) && !newPhone.equals(existingUser.getPhone())) {
-            updateWrapper.set(User::getPhone, newPhone);
             existingUser.setPhone(newPhone);
-            hasUpdate = true;
         }
 
         // [邮箱]
         String newEmail = adminMotifyRequest.getEmail();
+        if(StringUtils.isBlank(newEmail)){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"邮箱不能为空");
+        }
         if (StringUtils.isNotBlank(newEmail) && !newEmail.equals(existingUser.getEmail())) {
-            updateWrapper.set(User::getEmail, newEmail);
             existingUser.setEmail(newEmail);
-            hasUpdate = true;
         }
 
         // [头像]
         String newAvatar = adminMotifyRequest.getAvatar();
+        if(StringUtils.isBlank(newAvatar)){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"头像不能为空");
+        }
         if (StringUtils.isNotBlank(newAvatar) && !newAvatar.equals(existingUser.getAvatar())) {
-            updateWrapper.set(User::getAvatar, newAvatar);
             existingUser.setAvatar(newAvatar);
-            hasUpdate = true;
         }
 
         // [状态] (int 类型通常需要约定 0 是有效值还是默认值，这里假设前后端传值正确)
         if (adminMotifyRequest.getStatus() != existingUser.getStatus()) {
-            updateWrapper.set(User::getStatus, adminMotifyRequest.getStatus());
             existingUser.setStatus(adminMotifyRequest.getStatus());
-            hasUpdate = true;
         }
 
         // [是否删除]
         if (adminMotifyRequest.getIsDelete() != existingUser.getIsDelete()) {
-            updateWrapper.set(User::getIsDelete, adminMotifyRequest.getIsDelete());
             existingUser.setIsDelete(adminMotifyRequest.getIsDelete());
-            hasUpdate = true;
         }
 
         // 4. 执行 User 表更新
-        if (hasUpdate) {
-            update(updateWrapper);
-        }
+        userMapper.updateById(existingUser);
         AdminUserInfo adminUserInfo = AdminUserInfo.fromEntity(existingUser);
         // 5. 更新角色 (涉及关联表 UserRole)
         String newRole = adminMotifyRequest.getRole();
@@ -383,6 +379,43 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
         // 6. 返回最新的用户信息
         return adminUserInfo;
+    }
+
+    @Override
+    public IPage<AdminUserInfo> searchUser(SearchUserRequest searchUserRequest,HttpServletRequest servletRequest) {
+        if (searchUserRequest == null) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        String header = servletRequest.getHeader(JwtConstant.HEADER);
+        String token = jwtTokenUtil.getTokenFromHeader(header);
+        if(!isAdmin(token)){
+            throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
+        }
+        //搜索词
+        String keyword = searchUserRequest.getKeyword();
+        PageRequest pageRequest = searchUserRequest.getPageRequest();
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        if(keyword != null){
+            userQueryWrapper.like("username", keyword).or().like("real_name", keyword).or().like("phone", keyword);
+        }
+        Page<User> userPage = new Page<>(pageRequest.getPageNum(), pageRequest.getPageSize());
+        userMapper.selectPage(userPage, userQueryWrapper);
+        Page<AdminUserInfo> resultPage = new Page<>();
+        resultPage.setTotal(userPage.getTotal());
+        resultPage.setSize(userPage.getSize());
+        resultPage.setCurrent(userPage.getCurrent());
+        List<AdminUserInfo> dtoList = userPage.getRecords().stream().map(AdminUserInfo::fromEntity).collect(Collectors.toList());
+        for (AdminUserInfo dto : dtoList) {
+            QueryWrapper<UserRole> userRoleQueryWrapper = new QueryWrapper<>();
+            userRoleQueryWrapper.eq("user_id", dto.getId());
+            UserRole userRole = userRoleMapper.selectOne(userRoleQueryWrapper);
+            if (userRole == null) {
+                continue;
+            }
+            dto.setRole(userRole.getRoleCode());
+        }
+        resultPage.setRecords(dtoList);
+        return resultPage;
     }
 
     /**

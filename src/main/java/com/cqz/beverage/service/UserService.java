@@ -7,10 +7,7 @@ import com.cqz.beverage.model.dto.user.AdminUserInfo;
 import com.cqz.beverage.model.dto.user.LoginResponseDTO;
 import com.cqz.beverage.model.dto.user.MotifyPasswordDTO;
 import com.cqz.beverage.model.dto.user.RegisterResponseDTO;
-import com.cqz.beverage.model.vo.user.AdminMotifyRequest;
-import com.cqz.beverage.model.vo.user.MotifyPasswordRequest;
-import com.cqz.beverage.model.vo.user.MotifyUserRequest;
-import com.cqz.beverage.model.vo.user.PageRequest;
+import com.cqz.beverage.model.vo.user.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
@@ -87,4 +84,11 @@ public interface UserService extends IService<User> {
      * @return
      */
     AdminUserInfo AdminMotifyUserInfo(HttpServletRequest request, AdminMotifyRequest  adminMotifyRequest);
+
+    /**
+     * 管理员根据搜索条件来搜索用户
+     * @param searchUserRequest
+     * @return
+     */
+    IPage<AdminUserInfo> searchUser(SearchUserRequest searchUserRequest,HttpServletRequest request);
 }

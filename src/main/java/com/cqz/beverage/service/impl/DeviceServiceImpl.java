@@ -2,6 +2,7 @@ package com.cqz.beverage.service.impl;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -260,7 +261,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
     }
 
     @Override
-    public List<Device> getDeviceInfoList(HttpServletRequest request, PageRequest pageRequest) {
+    public IPage<Device> getDeviceInfoList(HttpServletRequest request, PageRequest pageRequest) {
         if (request == null) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
@@ -275,12 +276,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION.getCode(),"该用户非管理员或运营商无权限");
         }
         Page<Device> devicePage = new Page<>(pageRequest.getPageNum(),pageRequest.getPageSize());
-        Page<Device> selectPage = deviceMapper.selectPage(devicePage, null);
-        List<Device> records = selectPage.getRecords();
-        if(CollectionUtils.isEmpty(records)){
-            return new ArrayList<>();
-        }
-        return records;
+        deviceMapper.selectPage(devicePage, null);
+
+        return devicePage;
     }
 
     @Override
