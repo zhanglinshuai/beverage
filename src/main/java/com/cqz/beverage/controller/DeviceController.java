@@ -2,7 +2,6 @@ package com.cqz.beverage.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.exception.Result;
@@ -13,20 +12,16 @@ import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.UserRole;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
 import com.cqz.beverage.model.dto.device.DeleteEquipmentDTO;
+import com.cqz.beverage.model.dto.device.EquipmentDetailDTO;
 import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
 import com.cqz.beverage.model.dto.user.PageResponseDTO;
-import com.cqz.beverage.model.vo.device.AddEquipmentRequest;
-import com.cqz.beverage.model.vo.device.DeleteEquipmentRequest;
-import com.cqz.beverage.model.vo.device.GetEquipmentInfoRequest;
-import com.cqz.beverage.model.vo.device.MotifyEquipmentRequest;
+import com.cqz.beverage.model.vo.device.*;
 import com.cqz.beverage.model.vo.user.PageRequest;
 import com.cqz.beverage.service.DeviceService;
-import com.cqz.beverage.service.UserRoleService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,22 +76,28 @@ public class DeviceController {
     }
 
     @PostMapping("/deleteDevice")
-    public Result<DeleteEquipmentDTO>  deleteEquipment(@RequestBody DeleteEquipmentRequest deleteEquipmentRequest){
+    public Result<DeleteEquipmentDTO>  deleteEquipment(@RequestBody DeleteEquipmentRequest deleteEquipmentRequest, HttpServletRequest request){
         if (deleteEquipmentRequest==null){
             return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(), "参数为空");
         }
-        DeleteEquipmentDTO deleteEquipmentDTO = deviceService.deleteEquipment(deleteEquipmentRequest);
+        if (request==null){
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(), "参数为空");
+        }
+        DeleteEquipmentDTO deleteEquipmentDTO = deviceService.deleteEquipment(deleteEquipmentRequest,request);
         if (deleteEquipmentDTO==null){
             return Result.fail(BusinessExceptionEnum.SYSTEM_ERROR.getCode(),"删除设备失败");
         }
         return Result.success(deleteEquipmentDTO);
     }
     @PutMapping("/motifyDeviceInfo")
-    public Result<MotifyEquipmentDTO> motifyEquipment(@RequestBody MotifyEquipmentRequest motifyEquipmentRequest){
+    public Result<MotifyEquipmentDTO> motifyEquipment(@RequestBody MotifyEquipmentRequest motifyEquipmentRequest,HttpServletRequest request){
         if (motifyEquipmentRequest==null){
             return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"参数为空");
         }
-        MotifyEquipmentDTO motifyEquipmentDTO = deviceService.motifyEquipment(motifyEquipmentRequest);
+        if (request==null){
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"参数为空");
+        }
+        MotifyEquipmentDTO motifyEquipmentDTO = deviceService.motifyEquipment(motifyEquipmentRequest,request);
         if (motifyEquipmentDTO==null){
             return Result.fail(BusinessExceptionEnum.SYSTEM_ERROR.getCode(),"修改设备信息失败");
         }
@@ -119,14 +120,49 @@ public class DeviceController {
         return Result.success(devicePage);
     }
     @GetMapping("/getDeviceInfo")
-    public Result<Device> getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest){
+    public Result<EquipmentDetailDTO> getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest, HttpServletRequest request){
         if(getEquipmentInfoRequest==null){
             return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(), "参数为空");
         }
-        Device deviceInfo = deviceService.getDeviceInfo(getEquipmentInfoRequest);
+        if (request==null){
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(), "参数为空");
+        }
+        EquipmentDetailDTO deviceInfo = deviceService.getDeviceInfo(getEquipmentInfoRequest, request);
         if (deviceInfo==null){
             return Result.fail(BusinessExceptionEnum.DEVICE_NOT_EXISTS.getCode(), "设备不存在");
         }
         return Result.success(deviceInfo);
+    }
+
+    @GetMapping("/my/device")
+    public Result<PageResponseDTO<Device>> getMyDevice(HttpServletRequest servletRequest, PageRequest pageRequest){
+        if (servletRequest==null || pageRequest==null){
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(),"参数为空");
+        }
+        IPage<Device> myDeviceList = deviceService.getMyDeviceList(servletRequest, pageRequest);
+        PageResponseDTO<Device> devicePageResponseDTO = new PageResponseDTO<>();
+        devicePageResponseDTO.setRecords(myDeviceList.getRecords());
+        devicePageResponseDTO.setTotal(myDeviceList.getTotal());
+        devicePageResponseDTO.setPageNum((int) myDeviceList.getCurrent());
+        devicePageResponseDTO.setPageSize((int) myDeviceList.getSize());
+        return Result.success(devicePageResponseDTO);
+    }
+
+
+    @GetMapping("/search/keyword")
+    public Result<PageResponseDTO<Device>> searchDeviceByKeyword(HttpServletRequest servletRequest, SearchDeviceByKeyWordRequest searchDeviceByKeyWordRequest){
+        if (searchDeviceByKeyWordRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        if (servletRequest==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        IPage<Device> deviceIPage = deviceService.searchDeviceByKeyWord(servletRequest, searchDeviceByKeyWordRequest);
+        PageResponseDTO<Device> result = new PageResponseDTO<>();
+        result.setRecords(deviceIPage.getRecords());
+        result.setTotal(deviceIPage.getTotal());
+        result.setPageNum((int) deviceIPage.getCurrent());
+        result.setPageSize((int) deviceIPage.getSize());
+        return Result.success(result);
     }
 }

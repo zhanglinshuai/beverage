@@ -26,7 +26,9 @@ public enum BusinessExceptionEnum {
     USER_ROLE_NO_PERMISSION(20010,"用户非管理员无权限"),
     //设备异常
     DEVICE_ALREADY_EXISTS(30001,"设备已经存在"),
-    DEVICE_NOT_EXISTS(30002,"设备不存在")
+    DEVICE_NOT_EXISTS(30002,"设备不存在"),
+    OPERATOR_NOT_EXISTS(30003,"运营商不存在"),
+    USER_NOT_HAVE_DEVICE(30004,"用户名下没有设备")
     ;
 
     private int code;

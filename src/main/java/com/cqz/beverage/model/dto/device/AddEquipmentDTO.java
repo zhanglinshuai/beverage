@@ -39,6 +39,7 @@ public class AddEquipmentDTO implements Serializable {
         dto.setInstallTime(device.getInstallTime());
         dto.setCreateTime(device.getCreateTime());
         dto.setUpdateTime(device.getUpdateTime());
+        dto.setOperationId(device.getOperationId());
         return dto;
     }
 }

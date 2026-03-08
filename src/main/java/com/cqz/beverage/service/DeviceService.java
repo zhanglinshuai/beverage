@@ -6,11 +6,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
 import com.cqz.beverage.model.dto.device.DeleteEquipmentDTO;
+import com.cqz.beverage.model.dto.device.EquipmentDetailDTO;
 import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
-import com.cqz.beverage.model.vo.device.AddEquipmentRequest;
-import com.cqz.beverage.model.vo.device.DeleteEquipmentRequest;
-import com.cqz.beverage.model.vo.device.GetEquipmentInfoRequest;
-import com.cqz.beverage.model.vo.device.MotifyEquipmentRequest;
+import com.cqz.beverage.model.vo.device.*;
 import com.cqz.beverage.model.vo.user.PageRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -36,14 +34,14 @@ public interface DeviceService extends IService<Device> {
      * @param deleteEquipmentRequest
      * @return
      */
-    DeleteEquipmentDTO deleteEquipment(DeleteEquipmentRequest  deleteEquipmentRequest);
+    DeleteEquipmentDTO deleteEquipment(DeleteEquipmentRequest  deleteEquipmentRequest,HttpServletRequest request);
 
     /**
      * 修改设备信息
      * @param motifyEquipmentRequest
      * @return
      */
-    MotifyEquipmentDTO  motifyEquipment(MotifyEquipmentRequest motifyEquipmentRequest);
+    MotifyEquipmentDTO  motifyEquipment(MotifyEquipmentRequest motifyEquipmentRequest,HttpServletRequest request);
 
     /**
      * 分页查询
@@ -58,7 +56,7 @@ public interface DeviceService extends IService<Device> {
      * @param getEquipmentInfoRequest
      * @return
      */
-    Device getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest);
+    EquipmentDetailDTO getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest, HttpServletRequest request);
 
     /**
      * 校验用户是否为管理员或运营商
@@ -66,4 +64,20 @@ public interface DeviceService extends IService<Device> {
      * @return
      */
     boolean isAdminAndOperator(User currentUser);
+
+    /**
+     * 获取我的设备（我是运营商）
+     * @param request
+     * @param pageRequest
+     * @return
+     */
+    IPage<Device> getMyDeviceList(HttpServletRequest request, PageRequest pageRequest);
+
+    /**
+     * 根据关键词来搜索设备（支持设备编号，设备名称）
+     * @param request
+     * @param searchDeviceByKeyWordRequest
+     * @return
+     */
+    IPage<Device> searchDeviceByKeyWord(HttpServletRequest request, SearchDeviceByKeyWordRequest searchDeviceByKeyWordRequest);
 }

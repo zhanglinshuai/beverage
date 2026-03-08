@@ -15,11 +15,9 @@ import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.UserRole;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
 import com.cqz.beverage.model.dto.device.DeleteEquipmentDTO;
+import com.cqz.beverage.model.dto.device.EquipmentDetailDTO;
 import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
-import com.cqz.beverage.model.vo.device.AddEquipmentRequest;
-import com.cqz.beverage.model.vo.device.DeleteEquipmentRequest;
-import com.cqz.beverage.model.vo.device.GetEquipmentInfoRequest;
-import com.cqz.beverage.model.vo.device.MotifyEquipmentRequest;
+import com.cqz.beverage.model.vo.device.*;
 import com.cqz.beverage.model.vo.user.PageRequest;
 import com.cqz.beverage.service.DeviceService;
 import com.cqz.beverage.mapper.DeviceMapper;
@@ -122,13 +120,12 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
     }
 
     @Override
-    public DeleteEquipmentDTO deleteEquipment(DeleteEquipmentRequest deleteEquipmentRequest) {
+    public DeleteEquipmentDTO deleteEquipment(DeleteEquipmentRequest deleteEquipmentRequest,HttpServletRequest request) {
         //校验参数是否为空
         if(deleteEquipmentRequest == null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
         String deviceCode = deleteEquipmentRequest.getDeviceCode();
-        HttpServletRequest request = deleteEquipmentRequest.getRequest();
         if(StrUtil.isEmpty(deviceCode)){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
@@ -150,7 +147,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         }
         //如果设备存在的话，把is_delete字段改为1
         device.setIsDelete(1);
-        this.updateById(device);
+        deviceMapper.deleteById(device);
         DeleteEquipmentDTO deleteEquipmentDTO = new DeleteEquipmentDTO();
         deleteEquipmentDTO.setDelete(true);
         deleteEquipmentDTO.setEquipmentCode(device.getDeviceCode());
@@ -158,12 +155,11 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
     }
 
     @Override
-    public MotifyEquipmentDTO motifyEquipment(MotifyEquipmentRequest motifyEquipmentRequest) {
+    public MotifyEquipmentDTO motifyEquipment(MotifyEquipmentRequest motifyEquipmentRequest,HttpServletRequest request) {
         if(motifyEquipmentRequest == null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
         String deviceCode = motifyEquipmentRequest.getDeviceCode();
-        HttpServletRequest request = motifyEquipmentRequest.getRequest();
         String deviceName = motifyEquipmentRequest.getDeviceName();
         String deviceModel = motifyEquipmentRequest.getDeviceModel();
         String location = motifyEquipmentRequest.getLocation();
@@ -220,13 +216,6 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         if(!isAdminAndOperator(currentUser)){
             throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION.getCode(),"用户非管理员或运营商无权限");
         }
-        //校验修改后的设备编号是否存在保证唯一性
-        QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
-        deviceQueryWrapper.eq("device_code",deviceCode);
-        Device device = deviceMapper.selectOne(deviceQueryWrapper);
-        if(device != null){
-            throw new BusinessException(BusinessExceptionEnum.DEVICE_ALREADY_EXISTS.getCode(),"设备编号已经存在");
-        }
         //给修改前后不同的值更新
         if(!deviceName.equals(oldDevice.getDeviceName())){
             oldDevice.setDeviceName(deviceName);
@@ -237,9 +226,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         if(!location.equals(oldDevice.getLocation())){
             oldDevice.setLocation(location);
         }
-        if(!deviceCode.equals(oldDevice.getDeviceCode())){
-            oldDevice.setDeviceCode(deviceCode);
-        }
+
         if(!latitude.equals(oldDevice.getLatitude())){
             oldDevice.setLatitude(latitude);
         }
@@ -282,11 +269,11 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
     }
 
     @Override
-    public Device getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest) {
+    public EquipmentDetailDTO getDeviceInfo(GetEquipmentInfoRequest getEquipmentInfoRequest,HttpServletRequest request) {
         if (getEquipmentInfoRequest == null) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        HttpServletRequest request = getEquipmentInfoRequest.getRequest();
+
         String deviceCode = getEquipmentInfoRequest.getDeviceCode();
         //校验参数是否为空
         if (StringUtils.isEmpty(deviceCode)) {
@@ -299,11 +286,22 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
         deviceQueryWrapper.eq("device_code",deviceCode);
         Device device = deviceMapper.selectOne(deviceQueryWrapper);
-        if(device != null){
+        if(device == null){
             throw new BusinessException(BusinessExceptionEnum.DEVICE_NOT_EXISTS);
         }
+        Long operationId = device.getOperationId();
+        QueryWrapper<User> queryWrapper = new QueryWrapper<User>().eq("id", operationId);
+        User user = userService.getOne(queryWrapper);
+        if (user == null) {
+            throw new BusinessException(BusinessExceptionEnum.OPERATOR_NOT_EXISTS);
+        }
 
-        return device;
+        EquipmentDetailDTO equipmentDetailDTO = new EquipmentDetailDTO();
+        equipmentDetailDTO.setDevice(device);
+        equipmentDetailDTO.setOperatorId(user.getId());
+        equipmentDetailDTO.setOperatorName(user.getUsername());
+
+        return equipmentDetailDTO;
     }
 
     /**
@@ -325,6 +323,55 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION.getCode(),"用户非管理员和运营商无操作权限");
         }
         return true;
+    }
+
+    @Override
+    public IPage<Device> getMyDeviceList(HttpServletRequest request, PageRequest pageRequest) {
+        if(request==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        if (pageRequest == null) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        Page<Device> devicePage = new Page<>(pageRequest.getPageNum(), pageRequest.getPageSize());
+        String header = request.getHeader(JwtConstant.HEADER);
+        String token = jwtTokenUtil.getTokenFromHeader(header);
+        User currentUser = userService.getCurrentUser(token);
+        if(!isAdminAndOperator(currentUser)){
+            throw new BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
+        }
+
+        //构造条件，设备的运营商id是我的用户id说明我是运营商
+        QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<Device>().eq("operation_id", currentUser.getId());
+        deviceMapper.selectPage(devicePage, deviceQueryWrapper);
+        if(devicePage.getRecords() == null){
+            throw new BusinessException(BusinessExceptionEnum.DEVICE_NOT_EXISTS);
+        }
+        return devicePage;
+    }
+
+    @Override
+    public IPage<Device> searchDeviceByKeyWord(HttpServletRequest request, SearchDeviceByKeyWordRequest  searchDeviceByKeyWordRequest) {
+        if(request==null){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        if (searchDeviceByKeyWordRequest == null) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
+        PageRequest pageRequest = searchDeviceByKeyWordRequest.getPageRequest();
+        String keyword = searchDeviceByKeyWordRequest.getKeyword();
+        String header = request.getHeader(JwtConstant.HEADER);
+        String token = jwtTokenUtil.getTokenFromHeader(header);
+        if(!isAdminAndOperator(userService.getCurrentUser(token))){
+            throw new  BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION);
+        }
+        Page<Device> devicePage = new Page<>(pageRequest.getPageNum(), pageRequest.getPageSize());
+        QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<>();
+        //根据设备编号或者名称来搜索
+        deviceQueryWrapper.like("device_code",keyword).or().like("device_name",keyword);
+        deviceMapper.selectPage(devicePage, deviceQueryWrapper);
+
+        return devicePage;
     }
 }
 
