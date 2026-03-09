@@ -1,5 +1,6 @@
 package com.cqz.beverage.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cqz.beverage.model.DeviceArchive;
 import com.cqz.beverage.model.dto.maintenance.AddMaintenanceDTO;
@@ -25,11 +26,11 @@ public interface DeviceArchiveService extends IService<DeviceArchive> {
     AddMaintenanceDTO addDeviceArchive(AddMaintenanceRequest request);
 
     /**
-     * 编辑设备维修记录
+     * 修改设备维修记录
      * @param request
      * @return
      */
-    DeviceArchive motifyDeviceArchive(MotifyMaintenanceRequest request);
+    List<DeviceArchive> motifyDeviceArchive(MotifyMaintenanceRequest request, HttpServletRequest servletRequest);
 
     /**
      * 查找设备维修记录（分页查询）
@@ -37,5 +38,13 @@ public interface DeviceArchiveService extends IService<DeviceArchive> {
      * @param request
      * @return
      */
-    List<DeviceArchive> searchDeviceArchive(PageRequest page, HttpServletRequest request);
+    IPage<DeviceArchive> searchDeviceArchive(PageRequest page, HttpServletRequest request);
+
+    /**
+     * 获取当前设备所有维修档案
+     * @param deviceCode
+     * @param request
+     * @return
+     */
+    List<DeviceArchive> getCurrentDeviceArchiveInfo(String deviceCode,HttpServletRequest request);
 }

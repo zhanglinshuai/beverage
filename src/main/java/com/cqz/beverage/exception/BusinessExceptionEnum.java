@@ -28,7 +28,9 @@ public enum BusinessExceptionEnum {
     DEVICE_ALREADY_EXISTS(30001,"设备已经存在"),
     DEVICE_NOT_EXISTS(30002,"设备不存在"),
     OPERATOR_NOT_EXISTS(30003,"运营商不存在"),
-    USER_NOT_HAVE_DEVICE(30004,"用户名下没有设备")
+    USER_NOT_HAVE_DEVICE(30004,"用户名下没有设备"),
+    //维修记录异常
+    DEVICE_ARCHIVE_NOT_EXIES(40001,"该设备的维修记录不存在")
     ;
 
     private int code;
