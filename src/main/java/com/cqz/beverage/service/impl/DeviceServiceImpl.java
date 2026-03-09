@@ -67,6 +67,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             String location = addEquipmentRequest.getLocation();
             String deviceModel = addEquipmentRequest.getDeviceModel();
             String status = addEquipmentRequest.getStatus();
+            Integer channelCount = addEquipmentRequest.getChannelCount();
             //判断参数是否为空
             if(StrUtil.hasEmpty(deviceName,deviceCode,location,deviceModel,status)){
                 throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
@@ -76,6 +77,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             }
             if (latitude == null || longitude == null) {
                 throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+            }
+            if (channelCount==null ||  channelCount<=0){
+                throw new BusinessException(BusinessExceptionEnum.PARAM_RANGE_ERROR);
             }
             //判断参数是否合规
             if (operationId<0){
@@ -112,6 +116,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             addDevice.setDeviceModel(deviceModel);
             addDevice.setStatus(status);
             addDevice.setOperationId(operationId);
+            addDevice.setChannelCount(channelCount);
             this.save(addDevice);
             return AddEquipmentDTO.fromEntity(addDevice);
         }else {
@@ -169,6 +174,7 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         Long operationId = motifyEquipmentRequest.getOperationId();
         Date installTime = motifyEquipmentRequest.getInstallTime();
         Device oldDevice = motifyEquipmentRequest.getDevice();
+        Integer channelCount = motifyEquipmentRequest.getChannelCount();
         //校验参数是否为空
         if(StrUtil.hasEmpty(deviceCode,deviceName,deviceModel,location,status)){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
@@ -191,6 +197,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         if (longitude == null) {
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
+        if (channelCount == null) {
+            throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
+        }
         //校验参数是否合规
         BigDecimal latitudeUpper = new BigDecimal(90);
         BigDecimal latitudeLower = new BigDecimal(-90);
@@ -207,6 +216,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             throw new BusinessException(BusinessExceptionEnum.PARAM_RANGE_ERROR.getCode(),"经度超出合法范围");
         }
         if (operationId<0){
+            throw new BusinessException(BusinessExceptionEnum.PARAM_RANGE_ERROR);
+        }
+        if (channelCount<0){
             throw new BusinessException(BusinessExceptionEnum.PARAM_RANGE_ERROR);
         }
         //判断用户是否为管理员或者运营商
@@ -241,6 +253,9 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         }
         if(!operationId.equals(oldDevice.getOperationId())){
             oldDevice.setOperationId(operationId);
+        }
+        if(!channelCount.equals(oldDevice.getChannelCount())){
+            oldDevice.setChannelCount(channelCount);
         }
         this.updateById(oldDevice);
         return MotifyEquipmentDTO.fromEntity(oldDevice);

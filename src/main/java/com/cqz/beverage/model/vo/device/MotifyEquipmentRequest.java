@@ -24,5 +24,6 @@ public class MotifyEquipmentRequest implements Serializable {
     private BigDecimal longitude;
     private String status;
     private Long operationId;
+    private Integer channelCount;
     private Date installTime;
 }

@@ -20,4 +20,5 @@ public class AddEquipmentRequest implements Serializable {
     private BigDecimal latitude;
     private String status;
     private Long operationId;
+    private Integer channelCount;
 }

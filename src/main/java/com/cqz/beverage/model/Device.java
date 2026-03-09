@@ -89,6 +89,9 @@ public class Device {
     @TableLogic(value = "0",delval = "1")
     private Integer isDelete;
 
+    @TableField("channel_count")
+    private Integer channelCount;
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -113,7 +116,9 @@ public class Device {
             && (this.getInstallTime() == null ? other.getInstallTime() == null : this.getInstallTime().equals(other.getInstallTime()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))    ;
+            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
+                && (this.getChannelCount() == null ? other.getChannelCount() == null : this.getChannelCount().equals(other.getChannelCount()))
+                ;
     }
 
     @Override
@@ -133,6 +138,7 @@ public class Device {
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
+        result = prime * result + ((getChannelCount() == null) ? 0 : getChannelCount().hashCode());
         return result;
     }
 
@@ -155,6 +161,7 @@ public class Device {
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
         sb.append(", isDelete=").append(isDelete);
+        sb.append(", channelCount=").append(channelCount);
         sb.append("]");
         return sb.toString();
     }

@@ -17,7 +17,7 @@ public class Inventory {
     /**
      * 库存id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -43,6 +43,11 @@ public class Inventory {
      */
     @TableField(value = "warning_stock")
     private Integer warningStock;
+    /**
+     * 货道编号
+     */
+    @TableField(value = "channel_no")
+    private Integer channelNo;
 
     /**
      * 更新时间

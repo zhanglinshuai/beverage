@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 添加商品的响应参数
+ * 添加设备的响应参数
  */
 @Data
 public class AddEquipmentDTO implements Serializable {
@@ -21,6 +21,7 @@ public class AddEquipmentDTO implements Serializable {
     private BigDecimal longitude;
     private BigDecimal latitude;
     private String status;
+    private Integer channelCount;
     private Long operationId;
     private Date installTime;
     private Date createTime;
@@ -40,6 +41,7 @@ public class AddEquipmentDTO implements Serializable {
         dto.setCreateTime(device.getCreateTime());
         dto.setUpdateTime(device.getUpdateTime());
         dto.setOperationId(device.getOperationId());
+        dto.setChannelCount(device.getChannelCount());
         return dto;
     }
 }

@@ -23,6 +23,7 @@ public class MotifyEquipmentDTO implements Serializable {
     private String status;
     private Long operationId;
     private Date installTime;
+    private Integer channelCount;
 
 
     public static MotifyEquipmentDTO fromEntity(Device device) {
@@ -36,6 +37,7 @@ public class MotifyEquipmentDTO implements Serializable {
         dto.setStatus(device.getStatus());
         dto.setInstallTime(device.getInstallTime());
         dto.setOperationId(device.getOperationId());
+        dto.setChannelCount(device.getChannelCount());
         return dto;
     }
 }

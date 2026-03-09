@@ -11,9 +11,10 @@
             <result property="stock" column="stock" />
             <result property="warningStock" column="warning_stock" />
             <result property="updateTime" column="update_time" />
+            <result property="channelNo" column="channel_no" />
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,device_id,product_id,stock,warning_stock,update_time
+        id,device_id,product_id,stock,warning_stock,update_time,channel_no
     </sql>
 </mapper>
