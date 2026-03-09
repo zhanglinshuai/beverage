@@ -92,7 +92,8 @@ create table product
     description    varchar(255)                       null comment '商品描述',
     product_status tinyint                            null comment '商品状态',
     create_time    datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    is_delete      tinyint  default 0                 not null comment '是否删除 0-不删除 1-删除'
+    is_delete      tinyint  default 0                 not null comment '是否删除 0-不删除 1-删除',
+    product_type   varchar(255)                       null comment '商品类别'
 )
     comment '商品表';
 

@@ -30,7 +30,10 @@ public enum BusinessExceptionEnum {
     OPERATOR_NOT_EXISTS(30003,"运营商不存在"),
     USER_NOT_HAVE_DEVICE(30004,"用户名下没有设备"),
     //维修记录异常
-    DEVICE_ARCHIVE_NOT_EXIES(40001,"该设备的维修记录不存在")
+    DEVICE_ARCHIVE_NOT_EXIES(40001,"该设备的维修记录不存在"),
+    //商品异常
+    PRODUCT_HAS_EXISTS(50001,"商品已存在"),
+    PRODUCT_NOT_EXISTS(50002,"商品不存在")
     ;
 
     private int code;

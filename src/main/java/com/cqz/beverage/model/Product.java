@@ -18,7 +18,7 @@ public class Product {
     /**
      * 商品id
      */
-    @TableId(value = "id", type = IdType.AUTO)
+    @TableId(value = "id", type = IdType.ASSIGN_ID)
     private Long id;
 
     /**
@@ -52,10 +52,14 @@ public class Product {
     private String description;
 
     @TableField(value = "product_status")
+    // 0-库存充足  1-下架  2-没有库存
     private Integer productStatus;
 
     @TableLogic(value = "0", delval = "1")
     private Integer isDelete;
+
+    @TableField(value = "product_type")
+    private String productType;
     /**
      * 创建时间
      */

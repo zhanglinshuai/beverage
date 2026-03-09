@@ -5,19 +5,20 @@
 <mapper namespace="com.cqz.beverage.mapper.ProductMapper">
 
     <resultMap id="BaseResultMap" type="com.cqz.beverage.model.Product">
-            <id property="id" column="id" />
-            <result property="productName" column="product_name" />
-            <result property="brand" column="brand" />
-            <result property="price" column="price" />
-            <result property="image" column="image" />
-            <result property="description" column="description" />
-            <result property="createTime" column="create_time" />
-            <result property="productStatus" column="product_status" />
-            <result property="isDelete" column="is_delete" />
+        <id property="id" column="id"/>
+        <result property="productName" column="product_name"/>
+        <result property="brand" column="brand"/>
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="description" column="description"/>
+        <result property="createTime" column="create_time"/>
+        <result property="productStatus" column="product_status"/>
+        <result property="isDelete" column="is_delete"/>
+        <result property="productType" column="product_type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,product_name,brand,price,image,description,product_status,
-        create_time,is_delete
+        create_time,is_delete,product_type
     </sql>
 </mapper>
