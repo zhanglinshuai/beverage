@@ -8,17 +8,17 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 库存表-存储各个设备的各个商品还有多少库存
- * @TableName inventory
+ * 货道表-设备中包含的货道
+ * @TableName device_channel
  */
-@TableName(value ="inventory")
+@TableName(value ="device_channel")
 @Data
-public class Inventory {
+public class DeviceChannel {
     /**
-     * 库存id
+     * 记录id
      */
-    @TableId(value = "id", type = IdType.ASSIGN_ID)
-    private Long id;
+    @TableId(value = "id", type = IdType.AUTO)
+    private Integer id;
 
     /**
      * 设备id
@@ -27,38 +27,28 @@ public class Inventory {
     private Long deviceId;
 
     /**
-     * 商品id
-     */
-    @TableField(value = "product_id")
-    private Long productId;
-
-    /**
-     * 当前库存
-     */
-    @TableField(value = "stock")
-    private Integer stock;
-
-    /**
-     * 库存预警值
-     */
-    @TableField(value = "warning_stock")
-    private Integer warningStock;
-    /**
      * 货道编号
      */
     @TableField(value = "channel_no")
     private String channelNo;
 
     /**
+     * 创建时间
+     */
+    @TableField(value = "create_time")
+    private Date createTime;
+
+    /**
      * 更新时间
      */
     @TableField(value = "update_time")
     private Date updateTime;
+
     /**
-     * 最大容量
+     * 是否删除 0-不删除 1-删除
      */
-    @TableField(value = "max_capacity")
-    private Integer maxCapacity;
+    @TableField(value = "is_delete")
+    private Integer isDelete;
 
     @Override
     public boolean equals(Object that) {
@@ -71,14 +61,13 @@ public class Inventory {
         if (getClass() != that.getClass()) {
             return false;
         }
-        Inventory other = (Inventory) that;
+        DeviceChannel other = (DeviceChannel) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
             && (this.getDeviceId() == null ? other.getDeviceId() == null : this.getDeviceId().equals(other.getDeviceId()))
-            && (this.getProductId() == null ? other.getProductId() == null : this.getProductId().equals(other.getProductId()))
-            && (this.getStock() == null ? other.getStock() == null : this.getStock().equals(other.getStock()))
-            && (this.getWarningStock() == null ? other.getWarningStock() == null : this.getWarningStock().equals(other.getWarningStock()))
+            && (this.getChannelNo() == null ? other.getChannelNo() == null : this.getChannelNo().equals(other.getChannelNo()))
+            && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
             && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
-                && (this.getMaxCapacity() == null ? other.getMaxCapacity() == null : this.getMaxCapacity().equals(other.getMaxCapacity()));
+            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()));
     }
 
     @Override
@@ -87,11 +76,10 @@ public class Inventory {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getDeviceId() == null) ? 0 : getDeviceId().hashCode());
-        result = prime * result + ((getProductId() == null) ? 0 : getProductId().hashCode());
-        result = prime * result + ((getStock() == null) ? 0 : getStock().hashCode());
-        result = prime * result + ((getWarningStock() == null) ? 0 : getWarningStock().hashCode());
+        result = prime * result + ((getChannelNo() == null) ? 0 : getChannelNo().hashCode());
+        result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
-        result = prime * result + ((getMaxCapacity() == null) ? 0 : getMaxCapacity().hashCode());
+        result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
         return result;
     }
 
@@ -103,11 +91,10 @@ public class Inventory {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", deviceId=").append(deviceId);
-        sb.append(", productId=").append(productId);
-        sb.append(", stock=").append(stock);
-        sb.append(", warningStock=").append(warningStock);
+        sb.append(", channelNo=").append(channelNo);
+        sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
-        sb.append(", maxCapacity=").append(maxCapacity);
+        sb.append(", isDelete=").append(isDelete);
         sb.append("]");
         return sb.toString();
     }

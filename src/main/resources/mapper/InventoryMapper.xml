@@ -5,16 +5,17 @@
 <mapper namespace="com.cqz.beverage.mapper.InventoryMapper">
 
     <resultMap id="BaseResultMap" type="com.cqz.beverage.model.Inventory">
-            <id property="id" column="id" />
-            <result property="deviceId" column="device_id" />
-            <result property="productId" column="product_id" />
-            <result property="stock" column="stock" />
-            <result property="warningStock" column="warning_stock" />
-            <result property="updateTime" column="update_time" />
-            <result property="channelNo" column="channel_no" />
+        <id property="id" column="id"/>
+        <result property="deviceId" column="device_id"/>
+        <result property="productId" column="product_id"/>
+        <result property="stock" column="stock"/>
+        <result property="warningStock" column="warning_stock"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="channelNo" column="channel_no"/>
+        <result property="maxCapacity" column="max_capacity"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,device_id,product_id,stock,warning_stock,update_time,channel_no
+        id,device_id,product_id,stock,warning_stock,update_time,channel_no,max_capacity
     </sql>
 </mapper>

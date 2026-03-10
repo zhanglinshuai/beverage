@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cqz.beverage.mapper.ChangeRecordMapper">
+
+    <resultMap id="BaseResultMap" type="com.cqz.beverage.model.ChangeRecord">
+            <id property="id" column="id" />
+            <result property="deviceCode" column="device_code" />
+            <result property="productName" column="product_name" />
+            <result property="brand" column="brand" />
+            <result property="channelNo" column="channel_no" />
+            <result property="operationType" column="operation_type" />
+            <result property="changeAmount" column="change_amount" />
+            <result property="operatorName" column="operator_name" />
+            <result property="changeTime" column="change_time" />
+        <result property="isDelete" column="is_delete" />
+        <result property="description" column="description" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,device_code,product_name,brand,channel_no,operation_type,
+        change_amount,operator_name,change_time,is_delete,description
+    </sql>
+</mapper>

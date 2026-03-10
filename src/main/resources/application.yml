@@ -21,8 +21,9 @@ mybatis-plus:
       logic-not-delete-value: 0
       logic-delete-value: 1
       logic-delete-field: isDelete
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-logging:
-  level:
-    com.cqz.beverage : debug
+      #mybatis-plus日志配置
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#logging:
+#  level:
+#    com.cqz.beverage : debug

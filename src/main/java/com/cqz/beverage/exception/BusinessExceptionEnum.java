@@ -29,11 +29,28 @@ public enum BusinessExceptionEnum {
     DEVICE_NOT_EXISTS(30002,"设备不存在"),
     OPERATOR_NOT_EXISTS(30003,"运营商不存在"),
     USER_NOT_HAVE_DEVICE(30004,"用户名下没有设备"),
+    DEVICE_UNAVAILABLE(30005,"设备目前不可用"),
     //维修记录异常
     DEVICE_ARCHIVE_NOT_EXIES(40001,"该设备的维修记录不存在"),
     //商品异常
     PRODUCT_HAS_EXISTS(50001,"商品已存在"),
-    PRODUCT_NOT_EXISTS(50002,"商品不存在")
+    PRODUCT_NOT_EXISTS(50002,"商品不存在"),
+    //库存异常
+    CAPACITY_HAS_EXISTS(60001,"库存配置已存在"),
+    BRAND_AND_PRODUCT_MUST_EXIST(60002,"品牌和商品名称必须都存在"),
+    BRAND_MUST_EXIST(60003,"品牌必须存在"),
+    STOCK_MUST_LESS_MAX_CAPACITY(60004,"当前库存必须小于最大容量"),
+    //货道异常
+    DEVICE_CHANNEL_NOT_EXISTS(70001,"当前设备的货道还未配置"),
+    PRODUCT_NOT_EXIST_IN_CHANNEL(70002,"商品不存在于任一货道中"),
+    CHANNEL_NOT_EXISTS(70003,"货道编号不存在"),
+    //库存记录异常
+    RECORD_HAS_EXISTS(80001,"当前设备的货道库存记录已经存在"),
+    OUT_OF_STOCK(80002,"当前设备货道的库存小于变更数量，无法操作"),
+    EXCEEDING_MAX_RANGE(80003,"库存加变更数量超出当前设备货道的最大容量，无法操作"),
+    RECORD_NOT_EXISTS(80004,"当前设备的货道库存记录不存在"),
+    UPDATED_STOCK_LESS_THAN_ZERO(80005,"更新后的库存小于0"),
+    UPDATED_STOCK_BETTER_THAN_MAX(80006,"更新后的库存大于最大容量")
     ;
 
     private int code;

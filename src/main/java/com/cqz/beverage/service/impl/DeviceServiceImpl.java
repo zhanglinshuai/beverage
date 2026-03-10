@@ -9,8 +9,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cqz.beverage.constant.JwtConstant;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
+import com.cqz.beverage.mapper.DeviceChannelMapper;
 import com.cqz.beverage.mapper.UserRoleMapper;
 import com.cqz.beverage.model.Device;
+import com.cqz.beverage.model.DeviceChannel;
 import com.cqz.beverage.model.User;
 import com.cqz.beverage.model.UserRole;
 import com.cqz.beverage.model.dto.device.AddEquipmentDTO;
@@ -19,6 +21,7 @@ import com.cqz.beverage.model.dto.device.EquipmentDetailDTO;
 import com.cqz.beverage.model.dto.device.MotifyEquipmentDTO;
 import com.cqz.beverage.model.vo.device.*;
 import com.cqz.beverage.model.vo.user.PageRequest;
+import com.cqz.beverage.service.DeviceChannelService;
 import com.cqz.beverage.service.DeviceService;
 import com.cqz.beverage.mapper.DeviceMapper;
 import com.cqz.beverage.service.UserService;
@@ -51,6 +54,8 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
     @Resource
     private UserRoleMapper  userRoleMapper;
 
+    @Resource
+    private DeviceChannelMapper deviceChannelMapper;
     @Override
     public AddEquipmentDTO addEquipment(HttpServletRequest request, AddEquipmentRequest addEquipmentRequest) {
         //获取当前登录用户
@@ -118,6 +123,14 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
             addDevice.setOperationId(operationId);
             addDevice.setChannelCount(channelCount);
             this.save(addDevice);
+            //根据货道的数量自动生成货道的编号并插入货道库当中
+            for (int i=0;i<channelCount;i++){
+                DeviceChannel deviceChannel = new DeviceChannel();
+                deviceChannel.setDeviceId(addDevice.getId());
+                deviceChannel.setIsDelete(0);
+                deviceChannel.setChannelNo(addDevice.getDeviceCode()+"_"+(i+1));
+                deviceChannelMapper.insert(deviceChannel);
+            }
             return AddEquipmentDTO.fromEntity(addDevice);
         }else {
             throw new  BusinessException(BusinessExceptionEnum.USER_ROLE_NO_PERMISSION.getCode(),"用户非管理员和运营商无操作权限");
@@ -156,6 +169,13 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         DeleteEquipmentDTO deleteEquipmentDTO = new DeleteEquipmentDTO();
         deleteEquipmentDTO.setDelete(true);
         deleteEquipmentDTO.setEquipmentCode(device.getDeviceCode());
+        //设备的货道也应该被删除
+        QueryWrapper<DeviceChannel> deviceChannelQueryWrapper = new QueryWrapper<>();
+        deviceChannelQueryWrapper.eq("device_id",device.getId());
+        List<DeviceChannel> deviceChannels = deviceChannelMapper.selectList(deviceChannelQueryWrapper);
+        for (DeviceChannel deviceChannel : deviceChannels) {
+            deviceChannelMapper.deleteById(deviceChannel.getId());
+        }
         return deleteEquipmentDTO;
     }
 
