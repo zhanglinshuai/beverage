@@ -206,20 +206,33 @@ public class ChangeRecordServiceImpl extends ServiceImpl<ChangeRecordMapper, Cha
             ChangeRecord existedRecord = changeRecordMapper.selectById(id);
             String existedType = existedRecord.getOperationType();
             Integer existedAmount = existedRecord.getChangeAmount();
+            //我现在要先根据设备id和货道编号获取当前库存有多少
+            //先通过设备编号获取设备id
+            String deviceCode = changeRecord.getDeviceCode();
+            QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<Device>().eq("device_code", deviceCode);
+            Device device = deviceMapper.selectOne(deviceQueryWrapper);
+            //获取库存
+            QueryWrapper<Inventory> inventoryQueryWrapper = new QueryWrapper<>();
+            inventoryQueryWrapper.eq("device_id",device.getId());
+            inventoryQueryWrapper.eq("channel_no",changeRecord.getChannelNo());
+            Inventory inventory = inventoryMapper.selectOne(inventoryQueryWrapper);
+
             //将传入的操作类型和变更数量和数据库中存入的进行比较
             if(!operationType.equals(existedType) || !changeAmount.equals(existedAmount)){
+                //当操作类型不变。只有变更数量变化的情况
+                if(!changeAmount.equals(existedAmount) && existedType.equals(operationType)){
+                    existedRecord.setChangeAmount(changeAmount);
+                    //新结果 = 旧结果-旧库存+新库存
+                    inventory.setStock(inventory.getStock()-changeAmount);
+                    //更新数据库
+                    changeRecordMapper.updateById(existedRecord);
+                    inventoryMapper.updateById(inventory);
+                }
                 //那么就需要更新数据库中的数据
+                //当操作类型变化，不管变更数量有没有变化的情况
                 if(existedType.equals("入库") && !operationType.equals(existedType)){
                     //将入库改为了出库，计算公式   新结果=旧结果-原记录值-新记录值
-                    //我现在要先根据设备id和货道编号获取当前库存有多少
-                    //先通过设备编号获取设备id
-                    String deviceCode = changeRecord.getDeviceCode();
-                    QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<Device>().eq("device_code", deviceCode);
-                    Device device = deviceMapper.selectOne(deviceQueryWrapper);
-                    QueryWrapper<Inventory> inventoryQueryWrapper = new QueryWrapper<>();
-                    inventoryQueryWrapper.eq("device_id",device.getId());
-                    inventoryQueryWrapper.eq("channel_no",changeRecord.getChannelNo());
-                    Inventory inventory = inventoryMapper.selectOne(inventoryQueryWrapper);
+
                     //旧结果
                     Integer OldStock = inventory.getStock();
                     //新结果
@@ -247,27 +260,27 @@ public class ChangeRecordServiceImpl extends ServiceImpl<ChangeRecordMapper, Cha
                     //将出库改为入库   计算公式： 新结果 = 旧结果+原记录值+新记录值
                     //我现在要先根据设备id和货道编号获取当前库存有多少
                     //先通过设备编号获取设备id
-                    String deviceCode = changeRecord.getDeviceCode();
-                    QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<Device>().eq("device_code", deviceCode);
-                    Device device = deviceMapper.selectOne(deviceQueryWrapper);
-                    QueryWrapper<Inventory> inventoryQueryWrapper = new QueryWrapper<>();
-                    inventoryQueryWrapper.eq("device_id",device.getId());
+                    String code = changeRecord.getDeviceCode();
+                    QueryWrapper<Device> queryWrapper = new QueryWrapper<Device>().eq("device_code", code);
+                    Device selected = deviceMapper.selectOne(queryWrapper);
+                    QueryWrapper<Inventory> wrapper = new QueryWrapper<>();
+                    inventoryQueryWrapper.eq("device_id",selected.getId());
                     inventoryQueryWrapper.eq("channel_no",changeRecord.getChannelNo());
-                    Inventory inventory = inventoryMapper.selectOne(inventoryQueryWrapper);
+                    Inventory res = inventoryMapper.selectOne(wrapper);
                     //旧结果
-                    Integer OldStock = inventory.getStock();
+                    Integer OldStock = res.getStock();
                     //新结果
                     Integer newStock = OldStock+existedAmount+changeRecord.getChangeAmount();
-                    if(newStock>inventory.getMaxCapacity()){
+                    if(newStock>res.getMaxCapacity()){
                         throw new BusinessException(BusinessExceptionEnum.UPDATED_STOCK_LESS_THAN_ZERO);
                     }
                     //更新库存数据、库存记录数据
-                    inventory.setStock(newStock);
+                    res.setStock(newStock);
                     changeRecord.setChangeAmount(changeAmount);
                     changeRecord.setOperationType(operationType);
                     //更新数据库
                     changeRecordMapper.updateById(changeRecord);
-                    inventoryMapper.updateById(inventory);
+                    inventoryMapper.updateById(res);
                 }
             }
         }

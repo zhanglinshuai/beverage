@@ -105,4 +105,13 @@ public class InventoryController {
         return Result.success(inventoryDTO);
     }
 
+    @PutMapping("/update")
+    public Result<InventoryDTO> updateInventory(@RequestBody InventoryDTO inventoryDTO,HttpServletRequest request) {
+        if (inventoryDTO == null) {
+            return Result.fail(BusinessExceptionEnum.PARAM_EMPTY.getCode(), BusinessExceptionEnum.PARAM_EMPTY.getMsg());
+        }
+        InventoryDTO revised = inventoryService.reviseInventory(inventoryDTO, request);
+        return Result.success(revised);
+    }
+
 }

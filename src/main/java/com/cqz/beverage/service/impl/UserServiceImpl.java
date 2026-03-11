@@ -46,7 +46,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     private JwtTokenUtil jwtTokenUtil;
     @Resource
     private UserRoleMapper userRoleMapper;
-
     @Override
     public RegisterResponseDTO userRegister(String username, String password, String checkPassword, String phone, String email) {
         //任意一个参数为空则会抛出该异常

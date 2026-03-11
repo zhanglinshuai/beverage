@@ -72,4 +72,11 @@ public interface InventoryService extends IService<Inventory> {
      */
     InventoryDTO getCurrentInventory(String channelNo,String deviceCode);
 
+    /**
+     * 修改当前的货道库存配置
+     * @param inventoryDTO
+     * @return
+     */
+    InventoryDTO reviseInventory(InventoryDTO inventoryDTO,HttpServletRequest request);
+
 }

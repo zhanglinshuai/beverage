@@ -1,11 +1,14 @@
 package com.cqz.beverage.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cqz.beverage.exception.BusinessException;
 import com.cqz.beverage.exception.BusinessExceptionEnum;
 import com.cqz.beverage.exception.Result;
+import com.cqz.beverage.mapper.UserRoleMapper;
 import com.cqz.beverage.model.User;
+import com.cqz.beverage.model.UserRole;
 import com.cqz.beverage.model.dto.user.*;
 import com.cqz.beverage.model.vo.user.*;
 import com.cqz.beverage.service.UserService;
@@ -25,6 +28,8 @@ import java.util.List;
 public class UserController {
     @Resource
     private UserService userService;
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
     @Resource
     private JwtTokenUtil jwtTokenUtil;
@@ -52,14 +57,21 @@ public class UserController {
     }
 
     @GetMapping("/getUserInfo")
-    public Result<User> getUserInfo(HttpServletRequest request) {
+    public Result<UserDTO> getUserInfo(HttpServletRequest request) {
         String header = request.getHeader(jwtTokenUtil.getHeader());
         String token = jwtTokenUtil.getTokenFromHeader(header);
         User currentUser = userService.getCurrentUser(token);
         if(currentUser == null) {
             throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
         }
-        return Result.success(currentUser);
+        UserDTO userDTO = UserDTO.userDTO(currentUser);
+        QueryWrapper<UserRole> queryWrapper = new QueryWrapper<UserRole>().eq("user_id", currentUser.getId());
+        UserRole userRole = userRoleMapper.selectOne(queryWrapper);
+        if(userRole == null) {
+            throw new BusinessException(BusinessExceptionEnum.USER_NOT_FOUND);
+        }
+        userDTO.setRoleCode(userRole.getRoleCode());
+        return Result.success(userDTO);
     }
 
 

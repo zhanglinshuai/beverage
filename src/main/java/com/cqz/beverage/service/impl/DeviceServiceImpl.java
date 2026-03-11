@@ -32,6 +32,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -276,6 +278,14 @@ public class DeviceServiceImpl extends ServiceImpl<DeviceMapper, Device>
         }
         if(!channelCount.equals(oldDevice.getChannelCount())){
             oldDevice.setChannelCount(channelCount);
+        }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String format = dateFormat.format(new Date());
+        try {
+            Date date = dateFormat.parse(format);
+            oldDevice.setUpdateTime(date);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
         this.updateById(oldDevice);
         return MotifyEquipmentDTO.fromEntity(oldDevice);
