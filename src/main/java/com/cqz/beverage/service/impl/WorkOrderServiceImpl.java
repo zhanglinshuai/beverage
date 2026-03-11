@@ -214,13 +214,16 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
         if (request==null || workOrder==null){
             throw new BusinessException(BusinessExceptionEnum.PARAM_EMPTY);
         }
-        //workType、workStatus、finishTime可以修改
+        //workType、workStatus、finishTime、设备编号可以修改
         String workNo = workOrder.getWorkNo();
         QueryWrapper<WorkOrder> wrapper = new QueryWrapper<WorkOrder>().eq("work_no", workNo);
         WorkOrder existedWorkOrder = workOrderMapper.selectOne(wrapper);
         String workStatus = workOrder.getWorkStatus();
         LocalDateTime finishTime = workOrder.getFinishTime();
         String workType = workOrder.getWorkType();
+        String deviceCode = workOrder.getDeviceCode();
+        String operatorName = workOrder.getOperatorName();
+        String maintainerName = workOrder.getMaintainerName();
         if(workType!=null && !workType.equals(existedWorkOrder.getWorkType())){
             existedWorkOrder.setWorkType(workType);
         }
@@ -233,10 +236,32 @@ public class WorkOrderServiceImpl extends ServiceImpl<WorkOrderMapper, WorkOrder
         if(finishTime!=null){
             existedWorkOrder.setFinishTime(finishTime);
         }
-
+        Long deviceId = existedWorkOrder.getDeviceId();
+        Device device = deviceService.getById(deviceId);
+        //如果设备编号变了，运营商跟着变
+        if(deviceCode!=null && !deviceCode.equals(device.getDeviceCode())){
+            //修改设备编号
+            QueryWrapper<Device> deviceQueryWrapper = new QueryWrapper<Device>().eq("device_code", deviceCode);
+            Device getOne = deviceService.getOne(deviceQueryWrapper);
+            existedWorkOrder.setDeviceId(getOne.getId());
+            //修改运营商
+            existedWorkOrder.setOperatorId(getOne.getOperationId());
+        }
+        Long maintainerId = existedWorkOrder.getMaintainerId();
+        User maintainer = userService.getById(maintainerId);
+        if(maintainerName!=null && maintainerName.equals(maintainer.getUsername())){
+            //修改运维人员
+            QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+            userQueryWrapper.eq("username",maintainerName);
+            User user = userService.getOne(userQueryWrapper);
+            existedWorkOrder.setMaintainerId(user.getId());
+        }
         //更新数据库信息
         workOrderMapper.updateById(existedWorkOrder);
         WorkOrderDTO newDto = WorkOrderDTO.fromEntity(existedWorkOrder);
+        newDto.setDeviceCode(deviceCode);
+        newDto.setMaintainerName(maintainerName);
+        newDto.setOperatorName(operatorName);
         newDto.setWorkType(workType);
         newDto.setWorkStatus(workStatus);
         newDto.setFinishTime(finishTime);
